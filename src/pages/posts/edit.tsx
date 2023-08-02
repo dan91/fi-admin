@@ -1,9 +1,9 @@
 import { IResourceComponentsProps } from "@refinedev/core";
-import { AntdCreateInferencer } from "@refinedev/inferencer/antd";
+import { AntdEditInferencer } from "@refinedev/inferencer/antd";
 
-export const BlogPostCreate: React.FC<IResourceComponentsProps> = () => {
+export const PostEdit: React.FC<IResourceComponentsProps> = () => {
   return (
-    <AntdCreateInferencer
+    <AntdEditInferencer
       fieldTransformer={(field) => {
         if (["$permissions", "$updatedAt", "$createdAt"].includes(field.key)) {
           return false;

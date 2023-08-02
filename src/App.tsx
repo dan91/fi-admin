@@ -7,6 +7,7 @@ import {
   notificationProvider,
   ThemedLayoutV2,
   ThemedSiderV2,
+  ThemedTitleV2,
 } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
@@ -23,11 +24,10 @@ import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import {
-  BlogPostCreate,
   BlogPostEdit,
   BlogPostList,
   BlogPostShow,
-} from "./pages/blog-posts";
+} from "./pages/experiments";
 import {
   CategoryCreate,
   CategoryEdit,
@@ -35,6 +35,11 @@ import {
   CategoryShow,
 } from "./pages/categories";
 import { appwriteClient } from "./utility";
+import { AppIcon } from "./components/app-icon";
+import { Dashboard } from "./pages/dashboard";
+import { DashboardOutlined } from "@ant-design/icons";
+import { PostCreate, PostEdit, PostList, PostShow } from "./pages/posts";
+import { ExperimentCreate } from "./pages/experiments/create";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -47,15 +52,15 @@ function App() {
 
   return (
     <BrowserRouter>
-      <GitHubBanner />
+      {/* <GitHubBanner /> */}
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <Refine
             dataProvider={dataProvider(appwriteClient, {
-              databaseId: "database",
+              databaseId: "64b82f748ea7c86de6f4",
             })}
             liveProvider={liveProvider(appwriteClient, {
-              databaseId: "database",
+              databaseId: "64b82f748ea7c86de6f4",
             })}
             authProvider={authProvider}
             notificationProvider={notificationProvider}
@@ -63,23 +68,44 @@ function App() {
             i18nProvider={i18nProvider}
             resources={[
               {
-                name: "blog_posts",
-                list: "/blog-posts",
-                create: "/blog-posts/create",
-                edit: "/blog-posts/edit/:id",
-                show: "/blog-posts/show/:id",
+                name: 'dashboard',
+                list: '/dashboard',
+                meta: {
+                  label: 'Dashboard',
+                  icon: <DashboardOutlined />
+                }
+              },
+              {
+                name: "64b82f7b348727a801cb",
+                list: "/experiments",
+                create: "/experiments/create",
+                edit: "/experiments/edit/:id",
+                show: "/experiments/show/:id",
                 meta: {
                   canDelete: true,
+                  label: 'Experiments'
                 },
               },
               {
-                name: "categories",
+                name: "64bfc5ca89fc8d8fbfa1",
+                list: "/posts",
+                create: "/posts/create",
+                edit: "/posts/edit/:id",
+                show: "/posts/show/:id",
+                meta: {
+                  canDelete: true,
+                  label: 'Posts'
+                },
+              },
+              {
+                name: "64b83e127ef3657a5f53",
                 list: "/categories",
                 create: "/categories/create",
                 edit: "/categories/edit/:id",
                 show: "/categories/show/:id",
                 meta: {
                   canDelete: true,
+                  label: 'Likes'
                 },
               },
             ]}
@@ -93,6 +119,14 @@ function App() {
                 element={
                   <Authenticated fallback={<CatchAllNavigate to="/login" />}>
                     <ThemedLayoutV2
+                      Title={({ collapsed }) => (
+                        <ThemedTitleV2
+                            // collapsed is a boolean value that indicates whether the <Sidebar> is collapsed or not
+                            collapsed={collapsed}
+                            icon={collapsed ? <AppIcon /> : <AppIcon />}
+                            text=""
+                        />
+                    )}
                       Header={() => <Header sticky />}
                       Sider={(props) => <ThemedSiderV2 {...props} fixed />}
                     >
@@ -103,13 +137,22 @@ function App() {
               >
                 <Route
                   index
-                  element={<NavigateToResource resource="blog_posts" />}
+                  element={<NavigateToResource resource="dashboard" />}
                 />
-                <Route path="/blog-posts">
+                <Route path="/dashboard">
+                  <Route index element={<Dashboard />} />
+                  </Route>
+                <Route path="/experiments">
                   <Route index element={<BlogPostList />} />
-                  <Route path="create" element={<BlogPostCreate />} />
+                  <Route path="create" element={<ExperimentCreate />} />
                   <Route path="edit/:id" element={<BlogPostEdit />} />
                   <Route path="show/:id" element={<BlogPostShow />} />
+                </Route>
+                <Route path="/posts">
+                  <Route index element={<PostList />} />
+                  <Route path="create" element={<PostCreate />} />
+                  <Route path="edit/:id" element={<PostEdit />} />
+                  <Route path="show/:id" element={<PostShow />} />
                 </Route>
                 <Route path="/categories">
                   <Route index element={<CategoryList />} />
