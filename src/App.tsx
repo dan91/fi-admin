@@ -25,8 +25,8 @@ import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import {
   BlogPostEdit,
-  BlogPostList,
   BlogPostShow,
+  ExperimentList,
 } from "./pages/experiments";
 import {
   CategoryCreate,
@@ -121,12 +121,12 @@ function App() {
                     <ThemedLayoutV2
                       Title={({ collapsed }) => (
                         <ThemedTitleV2
-                            // collapsed is a boolean value that indicates whether the <Sidebar> is collapsed or not
-                            collapsed={collapsed}
-                            icon={collapsed ? <AppIcon /> : <AppIcon />}
-                            text=""
+                          // collapsed is a boolean value that indicates whether the <Sidebar> is collapsed or not
+                          collapsed={collapsed}
+                          icon={collapsed ? <AppIcon /> : <AppIcon />}
+                          text=""
                         />
-                    )}
+                      )}
                       Header={() => <Header sticky />}
                       Sider={(props) => <ThemedSiderV2 {...props} fixed />}
                     >
@@ -141,19 +141,19 @@ function App() {
                 />
                 <Route path="/dashboard">
                   <Route index element={<Dashboard />} />
-                  </Route>
+                </Route>
                 <Route path="/experiments">
-                  <Route index element={<BlogPostList />} />
+                  <Route index element={<ExperimentList />} />
                   <Route path="create" element={<ExperimentCreate />} />
                   <Route path="edit/:id" element={<BlogPostEdit />} />
                   <Route path="show/:id" element={<BlogPostShow />} />
                 </Route>
-                <Route path="/posts">
+                {/* <Route path="/posts">
                   <Route index element={<PostList />} />
                   <Route path="create" element={<PostCreate />} />
                   <Route path="edit/:id" element={<PostEdit />} />
                   <Route path="show/:id" element={<PostShow />} />
-                </Route>
+                </Route> */}
                 <Route path="/categories">
                   <Route index element={<CategoryList />} />
                   <Route path="create" element={<CategoryCreate />} />
