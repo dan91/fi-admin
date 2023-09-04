@@ -31,7 +31,6 @@ import {
     // EditProduct,
 } from "../../components/product";
 import { IExperiment } from "../../interfaces";
-import { ExperimentCreate } from "./create";
 
 const { Text } = Typography;
 

@@ -40,6 +40,7 @@ import { Dashboard } from "./pages/dashboard";
 import { DashboardOutlined } from "@ant-design/icons";
 import { PostCreate, PostEdit, PostList, PostShow } from "./pages/posts";
 import { ExperimentCreate } from "./pages/experiments/create";
+import { StartExperiment } from "./pages/participant-view/startExperiment";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -192,6 +193,10 @@ function App() {
                   element={<AuthPage type="forgotPassword" />}
                 />
               </Route>
+              <Route
+                path="/start-experiment/:prolificId/:studyId"
+                element={<StartExperiment />}
+              />
             </Routes>
 
             <RefineKbar />
