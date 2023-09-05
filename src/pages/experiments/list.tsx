@@ -24,12 +24,7 @@ import { useSimpleList, CreateButton, useDrawerForm } from "@refinedev/antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { Row, List as AntdList, Col, Form, Input, Typography } from "antd";
 
-import {
-    ExperimentItem,
-    ProductCategoryFilter,
-    // CreateProduct,
-    // EditProduct,
-} from "../../components/product";
+
 import { IExperiment } from "../../interfaces";
 
 const { Text } = Typography;
@@ -120,9 +115,9 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
                                 paddingRight: "4px",
                             }}
                             {...listProps}
-                            renderItem={(item) => (
-                                <ExperimentItem item={item} />
-                            )}
+                        // renderItem={(item) => (
+                        //     <ExperimentItem item={item} />
+                        // )}
                         />
                     </Col>
                     {/* <Col xs={0} sm={6}>

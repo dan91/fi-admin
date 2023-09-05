@@ -22,7 +22,6 @@ export const StartExperiment: React.FC = () => {
     if (code == 0)
         setCode(generateRandomNumber());
 
-    // TODO: call this function
     useEffect(() => {
 
         const fifteenMinutesFromNow = () => {
@@ -46,10 +45,10 @@ export const StartExperiment: React.FC = () => {
 
 
     return code == 0
-        ? <CustomLayout>
+        ? (<CustomLayout>
             <Button onClick={() => setCode(generateRandomNumber())}>Generate</Button>
-        </CustomLayout>
-        : <CustomLayout>
+        </CustomLayout>)
+        : (<CustomLayout>
             <Card title="Get the FeedInsights app">
                 <p>Now, download the App <b>FeedInsights</b> to start the experiment.</p>
                 <p><img src="/images/download_app.png" /></p>
@@ -57,15 +56,15 @@ export const StartExperiment: React.FC = () => {
                 {/* <p>{prolificId} {studyId}</p> */}
                 <Button onClick={() => setCode(generateRandomNumber())}>Generate new code</Button>
             </Card>
-        </CustomLayout>;
+        </CustomLayout>);
 };
 
-export const CustomLayout: React.FC = ({ children }) =>
+const CustomLayout = (props: { children: React.ReactNode }) =>
     <ThemedLayoutV2
         Sider={() => <></>}
         children={
             <Row justify="center">
-                {children}
+                {props.children}
             </Row>
         }
     />

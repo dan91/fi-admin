@@ -1,64 +1,63 @@
-import { CheckCircleFilled, PauseOutlined, StopFilled, StopOutlined } from "@ant-design/icons";
+import { PauseOutlined } from "@ant-design/icons";
 import { IResourceComponentsProps } from "@refinedev/core";
-import { Card, Progress, Row, Col, Table, List, Badge, Tag, Button } from "antd";
-import { Histogram } from '@ant-design/plots';
+import { Card, Progress, Row, Col, List, Tag, Button } from "antd";
 import { Box } from "@ant-design/charts";
 
 export const Dashboard: React.FC<IResourceComponentsProps> = () => {
   return (
     <>
-    <Row gutter={[12,12]}>
-    <Col xs={24} md={16}>
-    <h1>Aktuelles Experiment: Twitter Misinformation Part X <Tag color="green">aktiv</Tag> <Button icon={<PauseOutlined />} >
-        Pausieren
-      </Button></h1> 
-    </Col>
-    <Col flex={'auto'}>
-   
-    
-    </Col>
-    <Col xs={24} md={12}>
-    
-    </Col>
-    </Row>
-
-  
-    <Row gutter={[12,12]}>
-      <Col xs={24}  md={12} lg={6}>
-    <Card title="Fortschritt">
-    <Progress percent={75}  />
-    150/200 Teilnehmende
-
-    </Card>
-    </Col>
-    <Col xs={24} md={12} lg={12} xl={6}>
-    <Card title="Erfolgsquote">
-      <Row gutter={[12,12]}>
-        <Col xs={24}  md={12} lg={12}>
-        <Progress percent={96} type="dashboard" />
+      <Row gutter={[12, 12]}>
+        <Col xs={24} md={16}>
+          <h1>Aktuelles Experiment: Twitter Misinformation Part X <Tag color="green">aktiv</Tag> <Button icon={<PauseOutlined />} >
+            Pausieren
+          </Button></h1>
         </Col>
-        <Col xs={24}  md={12} lg={12}>
-          <h3>Gründe für Abbruch:</h3>
-        <List
-      dataSource={dataSource}
-      renderItem={(item) => (
-        <List.Item>
-           {item.name} (2%)
-        </List.Item>
-      )}
-    />
-    </Col>
+        <Col flex={'auto'}>
+
+
+        </Col>
+        <Col xs={24} md={12}>
+
+        </Col>
       </Row>
-     
-    </Card>
-    </Col>
-      <Col xs={24} md={12} lg={12} xl={6}>
-    <Card title="Dauer">
-<DemoBox />
-    </Card>
-    </Col>
-    </Row>
-  </>
+
+
+      <Row gutter={[12, 12]}>
+        <Col xs={24} md={12} lg={6}>
+          <Card title="Fortschritt">
+            <Progress percent={75} />
+            150/200 Teilnehmende
+
+          </Card>
+        </Col>
+        <Col xs={24} md={12} lg={12} xl={6}>
+          <Card title="Erfolgsquote">
+            <Row gutter={[12, 12]}>
+              <Col xs={24} md={12} lg={12}>
+                <Progress percent={96} type="dashboard" />
+              </Col>
+              <Col xs={24} md={12} lg={12}>
+                <h3>Gründe für Abbruch:</h3>
+                <List
+                  dataSource={dataSource}
+                  renderItem={(item) => (
+                    <List.Item>
+                      {item.name} (2%)
+                    </List.Item>
+                  )}
+                />
+              </Col>
+            </Row>
+
+          </Card>
+        </Col>
+        <Col xs={24} md={12} lg={12} xl={6}>
+          <Card title="Dauer">
+            {/* <DemoBox /> */}
+          </Card>
+        </Col>
+      </Row>
+    </>
   );
 };
 
@@ -86,7 +85,7 @@ const columns = [
     dataIndex: 'frequency',
     key: 'frequency',
   },
- 
+
 ];
 
 
@@ -117,7 +116,7 @@ const DemoBox = () => {
       q3: 19,
       high: 26,
     },
-   
+
   ];
   const config = {
     width: 400,
@@ -132,5 +131,5 @@ const DemoBox = () => {
     },
     animation: false,
   };
-  return <Box {...config} />
+  // return <Box {...config} />
 };
