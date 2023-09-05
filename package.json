@@ -1,7 +1,10 @@
 {
   "name": "sdlAdmin",
   "version": "0.1.0",
-  "homepage": "https://dan91.github.io/fi-admin",
+  "homepage": "https://dan91.github.io/fi-admin/",
+  "repository": {
+    "url": "git+https://github.com/dan91/fi-admin.git"
+  },
   "private": true,
   "type": "module",
   "dependencies": {
@@ -41,7 +44,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d dist",
     "dev": "refine dev",
     "build": "tsc && refine build",
     "preview": "refine start",

@@ -19,7 +19,7 @@ import routerBindings, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { useTranslation } from "react-i18next";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { HashRouter, Outlet, Route, Routes } from "react-router-dom";
 import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
@@ -52,7 +52,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       {/* <GitHubBanner /> */}
       <RefineKbarProvider>
         <ColorModeContextProvider>
@@ -205,7 +205,7 @@ function App() {
           </Refine>
         </ColorModeContextProvider>
       </RefineKbarProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
