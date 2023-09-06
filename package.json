@@ -1,9 +1,9 @@
 {
   "name": "sdlAdmin",
   "version": "0.1.0",
-  "homepage": "https://dan91.github.io/fi-admin/",
+  "homepage": "https://dan91.github.io",
   "repository": {
-    "url": "git+https://github.com/dan91/fi-admin.git"
+    "url": "git+https://github.com/dan91"
   },
   "private": true,
   "type": "module",
