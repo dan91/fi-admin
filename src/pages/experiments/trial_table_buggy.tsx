@@ -16,6 +16,7 @@ import {
     useDrawerForm,
     Create,
     useSimpleList,
+    DeleteButton,
 } from "@refinedev/antd";
 import { Table, Form, Button, Select, Drawer, InputNumber, Input } from "antd";
 import { IIntervention, ITrial } from "../../interfaces";
