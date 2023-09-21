@@ -1,6 +1,5 @@
 import { Authenticated, GitHubBanner, Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
-
 import {
   AuthPage,
   ErrorComponent,
@@ -8,6 +7,7 @@ import {
   ThemedLayoutV2,
   ThemedSiderV2,
   ThemedTitleV2,
+  Title,
 } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
@@ -41,7 +41,7 @@ import { DashboardOutlined } from "@ant-design/icons";
 import { PostCreate, PostEdit, PostList, PostShow } from "./pages/posts";
 import { ExperimentCreate } from "./pages/experiments/create";
 import { StartExperiment } from "./pages/participant-view/startExperiment";
-
+import { title } from "process";
 function App() {
   const { t, i18n } = useTranslation();
 
@@ -51,6 +51,8 @@ function App() {
     getLocale: () => i18n.language,
   };
 
+  const icon = <AppIcon />
+
   return (
     <HashRouter>
       {/* <GitHubBanner /> */}
@@ -58,10 +60,10 @@ function App() {
         <ColorModeContextProvider>
           <Refine
             dataProvider={dataProvider(appwriteClient, {
-              databaseId: "64b82f748ea7c86de6f4",
+              databaseId: "64ff0be402cc2e4ad05a",
             })}
             liveProvider={liveProvider(appwriteClient, {
-              databaseId: "64b82f748ea7c86de6f4",
+              databaseId: "64ff0be402cc2e4ad05a",
             })}
             authProvider={authProvider}
             notificationProvider={notificationProvider}
@@ -175,6 +177,7 @@ function App() {
                   element={
                     <AuthPage
                       type="login"
+                      title={<AppIcon />}
                       formProps={{
                         initialValues: {
                           email: "demo@refine.dev",
@@ -186,11 +189,11 @@ function App() {
                 />
                 <Route
                   path="/register"
-                  element={<AuthPage type="register" />}
+                  element={<AuthPage title={<AppIcon />} type="register" />}
                 />
                 <Route
                   path="/forgot-password"
-                  element={<AuthPage type="forgotPassword" />}
+                  element={<AuthPage title={<AppIcon />} type="forgotPassword" />}
                 />
               </Route>
               <Route
@@ -205,7 +208,7 @@ function App() {
           </Refine>
         </ColorModeContextProvider>
       </RefineKbarProvider>
-    </HashRouter>
+    </HashRouter >
   );
 }
 

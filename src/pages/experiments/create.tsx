@@ -11,15 +11,20 @@ import {
 import {
   Button,
   Steps,
+  UploadFile,
 } from "antd";
 
-import { IExperiment, IPost } from "../../interfaces";
+import { IExperiment, IIntervention, IPost, IStimulus } from "../../interfaces";
 import { EXPERIMENT_COLLECTION, POST_COLLECTION } from "../../utility";
 
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { PostList } from "../posts";
 import { ExperimentForm } from "./experiment_form";
 import { PostForm } from "./post_form";
+import { InterventionForm } from "./intervention_form";
+import { UploadChangeParam } from "antd/es/upload";
+import { StimulusForm } from "./stimulus_form";
+import { GroupTrialForm } from "./group_trial_form";
 
 
 export const ExperimentCreate: React.FC = () => {
@@ -53,6 +58,13 @@ export const ExperimentCreate: React.FC = () => {
 
   const [experimentValues, setExperimentValues] = useState(initialExperimentValues);
 
+  const initialInterventionValues: IIntervention = {
+    name: '',
+    message: ''
+  }
+
+  const [interventionValues, setInterventionValues] = useState(initialInterventionValues);
+
   const [addedExperimentId, setExperimentId] = useState({ experimentId: "" });
 
   const { mutate } = useCreate();
@@ -65,7 +77,13 @@ export const ExperimentCreate: React.FC = () => {
   const formList = [
     <ExperimentForm formProps={formProps} setValues={setExperimentValues} values={experimentValues} />
     ,
-    <PostForm formProps={formProps} changeUploadState={changeUploadState} setValues={setPostValues} values={postValues} />
+    <InterventionForm formProps={formProps} setValues={setInterventionValues} values={interventionValues} />,
+    <StimulusForm changeUploadState={changeUploadState} setValues={function (value: SetStateAction<IStimulus>): void {
+      throw new Error("Function not implemented.");
+    }} />,
+    <GroupTrialForm />
+    // <PostForm formProps={formProps} changeUploadState={changeUploadState} setValues={setPostValues} values={postValues} />,
+
   ];
 
   const handleReset = () => {
@@ -81,7 +99,7 @@ export const ExperimentCreate: React.FC = () => {
         footerButtons={
           <>
             {current < formList.length - 1 && (
-              <SaveButton {...saveButtonProps} onClick={() => {
+              <Button type="primary"  {...saveButtonProps} onClick={() => {
                 mutate({
                   resource: EXPERIMENT_COLLECTION,
                   values: experimentValues
@@ -93,7 +111,7 @@ export const ExperimentCreate: React.FC = () => {
                       gotoStep(current + 1);
                     }
                   })
-              }} />
+              }} >Next</Button>
             )}
 
             {current === formList.length - 1 && (
@@ -116,15 +134,17 @@ export const ExperimentCreate: React.FC = () => {
         }
       >
         <Steps {...stepsProps} responsive >
-          <Steps.Step title={'Experiment'} />
-          <Steps.Step title={'Posts'} />
+          <Steps.Step title={'Experiment Name'} />
+          <Steps.Step title={'Interventions'} />
+          <Steps.Step title={'Stimuli'} />
+          <Steps.Step title={'Groups & Trials'} />
         </Steps>
         {formList[current]}
       </Create >
-      {current === 1 &&
+      {/* {current === 1 &&
         <PostList experimentId={addedExperimentId.experimentId} />
-      }
-      {current > 0 && (
+      } */}
+      {current === formList.length - 1 && (
         <Button
           style={{ float: 'right', marginTop: 20 }}
           type='primary'

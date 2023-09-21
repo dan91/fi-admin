@@ -35,7 +35,7 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ formProps, setVa
                         </Form.Item>
 
                     </Col>
-                    <Col xs={24} lg={8}>
+                    {/* <Col xs={24} lg={8}>
                         <Form.Item
                             label={'Anzahl Teilnehmer'}
                             name="required_participants"
@@ -51,9 +51,9 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ formProps, setVa
                             <InputNumber />
                         </Form.Item>
 
-                    </Col>
+                    </Col> */}
                 </Row>
-                <Row gutter={10}>
+                {/* <Row gutter={10}>
 
                     <Col xs={24} lg={6}>
                         <Form.Item
@@ -161,7 +161,7 @@ export const ExperimentForm: React.FC<ExperimentFormProps> = ({ formProps, setVa
                         </Form.Item>
                     </Col>
 
-                </Row>
+                </Row> */}
 
             </Col>
         </Row>

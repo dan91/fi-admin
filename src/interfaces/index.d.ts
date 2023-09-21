@@ -31,3 +31,39 @@ export interface IPost {
     author: string;
     description: string
 }
+
+export interface IIntervention {
+    id?: string,
+    name: string,
+    message: string,
+    apply_on_likes?: boolean,
+    apply_on_comments?: boolean,
+    apply_on_shares?: boolean,
+}
+
+export interface IStimulus {
+    id?: string,
+    userName: string,
+    userImage: string,
+    stimulusText: string,
+    likes: number,
+    comments: number,
+    shares: number,
+    stimulusImage: string,
+    stimuliSets: number[]
+}
+
+export interface IGroup {
+    id: string,
+    name: string,
+    numParticipants: number
+}
+
+export interface ITrial {
+    id: string,
+    groupId: string,
+    key: number,
+    interventionId: string,
+    duration: number,
+    proportionStimuli: number
+}
