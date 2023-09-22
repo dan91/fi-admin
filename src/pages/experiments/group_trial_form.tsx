@@ -2,23 +2,23 @@ import { Button, Col, Collapse, CollapseProps, Drawer, Form, FormProps, Input, I
 import { Dispatch, SetStateAction, useState } from "react";
 import { IGroup, ITrial } from "../../interfaces";
 import { GROUP_COLLECTION, TRIAL_COLLECTION } from "../../utility";
-import { Create, EditButton, useDrawerForm } from "@refinedev/antd";
+import { Create, Edit, EditButton, useDrawerForm } from "@refinedev/antd";
 import { HttpError, useList, useTable } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { TrialTable } from "./trial_table";
+import { GroupForm } from "./group_form";
 const { Text } = Typography;
 
 export interface GroupTrialsFormProps {
-    formProps: FormProps;
-    setValues: Dispatch<SetStateAction<IGroup>>;
-    values: IGroup;
+    // formProps: FormProps;
+    // setValues: Dispatch<SetStateAction<IGroup>>;
+    // values: IGroup;
 }
 
 export const GroupTrialForm: React.FC<GroupTrialsFormProps> = () => {
     const { data: groups } = useList<IGroup>({ resource: GROUP_COLLECTION });
-    const [edit, setEdit] = useState(-1);
     const { formProps, drawerProps, show, saveButtonProps } = useDrawerForm<
         IGroup,
         HttpError,
@@ -28,54 +28,21 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = () => {
         resource: GROUP_COLLECTION
     });
 
-
-
-
-    const renderItem = (item: IGroup, index: number) => {
-        return index == edit ? renderItemEdit(item, index) : renderItemDisplay(item, index)
-    }
-
-    const renderItemDisplay = (item: IGroup, index: number) => {
-        const { id, name, numParticipants } = item;
-
-        return (
-            <>
-                <List.Item actions={[<Button type="link" onClick={() => { setEdit(index); }}>Edit</Button>]}>
-                    <List.Item.Meta title={name} description={numParticipants} />
-                </List.Item>
-            </>
-        );
-    };
-
-    const renderItemEdit = (item: IGroup, index: number) => {
-        const { id, name, numParticipants } = item;
-
-        function _saveName(value: string): void {
-            item.name = value
-        }
-
-        function _saveNumParticipants(value: string): void {
-            item.numParticipants = parseInt(value)
-        }
-
-        return (
-            <>
-                <List.Item actions={[<Button type="link" onClick={() => { setEdit(-1) }}>Save</Button>, <Button type="link" onClick={() => { setEdit(-1) }}>Cancel</Button>]}>
-                    <List.Item.Meta title={<Text editable={{
-                        editing: true, onChange: _saveName
-                    }}>{name}</Text>} description={<Text editable={{ editing: true, onChange: _saveNumParticipants }}>{numParticipants}</Text>} />
-                </List.Item >
-            </>
-        );
-    };
+    const { formProps: editFormProps, drawerProps: editDrawerProps, show: showEdit, saveButtonProps: saveEditButtonProps, deleteButtonProps } = useDrawerForm<
+        IGroup,
+        HttpError,
+        IGroup
+    >({
+        action: "edit",
+        resource: GROUP_COLLECTION
+    });
 
     const collapseItems: CollapseProps['items'] = groups?.data.map((group: IGroup) => ({
         key: group.id,
         label: `${group.name} | ${group.numParticipants} Participants`,
         children: <TrialTable groupId={group.id} />,
-        extra: <EditButton size="small" type="link" style={{ padding: '0', margin: '0' }} />
+        extra: <EditButton size="small" type="link" onClick={(e) => { e.stopPropagation(); showEdit(group.id) }} />
     }));
-
 
     return <>
         <Row style={{ paddingTop: "24px" }} >
@@ -87,33 +54,13 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = () => {
         <Collapse items={collapseItems} />
         <Drawer {...drawerProps}>
             <Create breadcrumb={false} goBack={false} title="Add Group" saveButtonProps={saveButtonProps}>
-                <Form {...formProps} layout="vertical" >
-                    <Form.Item
-                        label="Name"
-                        name="name"
-                        rules={[
-                            {
-                                required: true,
-                            },
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Participants"
-                        name="numParticipants"
-                        rules={[
-                            {
-                                required: true,
-                                type: 'number',
-                                max: 9999
-                            },
-                        ]}
-                    >
-                        <InputNumber />
-                    </Form.Item>
-                </Form>
+                <GroupForm formProps={formProps} />
             </Create>
+        </Drawer>
+        <Drawer {...editDrawerProps}>
+            <Edit resource={GROUP_COLLECTION} deleteButtonProps={deleteButtonProps} breadcrumb={false} goBack={false} title="Edit Group" saveButtonProps={saveEditButtonProps}>
+                <GroupForm formProps={editFormProps} />
+            </Edit>
         </Drawer>
     </>
 }

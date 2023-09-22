@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Button, Drawer, Form, Input, InputNumber, Select, Table } from 'antd';
+import { Button, Drawer, Form, Input, InputNumber, Select, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Create, DeleteButton, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
 import { IIntervention, ITrial } from '../../interfaces';

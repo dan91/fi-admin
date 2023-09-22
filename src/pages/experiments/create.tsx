@@ -23,7 +23,7 @@ import { ExperimentForm } from "./experiment_form";
 import { PostForm } from "./post_form";
 import { InterventionForm } from "./intervention_form";
 import { UploadChangeParam } from "antd/es/upload";
-import { StimulusForm } from "./stimulus_form";
+import { StimulusList } from "./stimulus_list";
 import { GroupTrialForm } from "./group_trial_form";
 
 
@@ -78,9 +78,7 @@ export const ExperimentCreate: React.FC = () => {
     <ExperimentForm formProps={formProps} setValues={setExperimentValues} values={experimentValues} />
     ,
     <InterventionForm formProps={formProps} setValues={setInterventionValues} values={interventionValues} />,
-    <StimulusForm changeUploadState={changeUploadState} setValues={function (value: SetStateAction<IStimulus>): void {
-      throw new Error("Function not implemented.");
-    }} />,
+    <StimulusList changeUploadState={changeUploadState} />,
     <GroupTrialForm />
     // <PostForm formProps={formProps} changeUploadState={changeUploadState} setValues={setPostValues} values={postValues} />,
 
@@ -113,21 +111,15 @@ export const ExperimentCreate: React.FC = () => {
                   })
               }} >Next</Button>
             )}
-
             {current === formList.length - 1 && (
-              <Button disabled={uploadInProgress} onClick={() => {
-                mutate({
-                  resource: POST_COLLECTION,
-                  values: postValues
-                },
-                  {
-                    onSuccess: () => handleReset()
-                  }
-                )
-              }
-              }
+              <Button
+                style={{ float: 'right', marginTop: 20 }}
+                type='primary'
+                onClick={() => {
+                  list(EXPERIMENT_COLLECTION)
+                }}
               >
-                Add Post
+                Done
               </Button>
             )}
           </>
@@ -141,20 +133,8 @@ export const ExperimentCreate: React.FC = () => {
         </Steps>
         {formList[current]}
       </Create >
-      {/* {current === 1 &&
-        <PostList experimentId={addedExperimentId.experimentId} />
-      } */}
-      {current === formList.length - 1 && (
-        <Button
-          style={{ float: 'right', marginTop: 20 }}
-          type='primary'
-          onClick={() => {
-            list(EXPERIMENT_COLLECTION)
-          }}
-        >
-          Done
-        </Button>
-      )}
+
+
     </>
   );
 };

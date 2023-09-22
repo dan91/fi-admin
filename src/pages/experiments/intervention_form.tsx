@@ -1,8 +1,8 @@
-import { Button, Col, Drawer, Form, FormProps, Input, List, Row, Select, Table, Typography } from "antd"
+import { Button, Col, Drawer, Form, FormProps, Input, List, Row, Typography } from "antd"
 import { Dispatch, SetStateAction, useState } from "react";
 import { IIntervention } from "../../interfaces";
-import { AUTH_CODES_COLLECTION, INTERVENTION_COLLECTION } from "../../utility";
-import { Create, TagField, useDrawerForm, useSimpleList } from "@refinedev/antd";
+import { INTERVENTION_COLLECTION } from "../../utility";
+import { Create, DeleteButton, EditButton, SaveButton, useDrawerForm, useSimpleList } from "@refinedev/antd";
 import { HttpError } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
@@ -37,7 +37,7 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ setValues, v
 
         return (
             <>
-                <List.Item actions={[<Button type="link" onClick={() => { setEdit(index); }}>Edit</Button>]}>
+                <List.Item actions={[<EditButton type="link" onClick={() => { setEdit(index); }} />]}>
                     <List.Item.Meta title={name} description={message} />
                 </List.Item>
             </>
@@ -57,7 +57,7 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ setValues, v
 
         return (
             <>
-                <List.Item actions={[<Button type="link" onClick={() => { setEdit(-1) }}>Save</Button>, <Button type="link" onClick={() => { setEdit(-1) }}>Cancel</Button>]}>
+                <List.Item actions={[<SaveButton type="link" onClick={() => { setEdit(-1) }} />, <DeleteButton type="link" recordItemId={item.id} resource={INTERVENTION_COLLECTION} icon={false} />, <Button type="link" onClick={() => { setEdit(-1) }}>Cancel</Button>]}>
                     <List.Item.Meta title={<Text editable={{
                         editing: true, onChange: _saveName
                     }}>{name}</Text>} description={<Text editable={{ editing: true, onChange: _saveMessage }}>{message}</Text>} />
