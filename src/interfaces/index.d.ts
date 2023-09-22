@@ -1,3 +1,5 @@
+import { BaseRecord } from "@refinedev/core";
+
 export interface IFile {
     name: string;
     percent: number;
@@ -10,15 +12,9 @@ export interface IFile {
 
 
 export interface IExperiment {
-    id?: string;
+    id: string;
     name: string;
-    required_participants: number;
-    session_duration: number;
-    website_redirect_after_session?: string;
-    website_redirect_after_experiment?: string;
-    number_sessions: number;
-    status?: 'running' | 'paused' | 'finished' | 'ready';
-    proportion_manipulated: number
+    status?: 'draft' | 'ready' | 'published' | 'paused' | 'completed';
 }
 
 export interface IPost {

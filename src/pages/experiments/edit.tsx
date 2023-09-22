@@ -1,15 +1,16 @@
-import { IResourceComponentsProps } from "@refinedev/core";
-import { AntdEditInferencer } from "@refinedev/inferencer/antd";
+import { HttpError, IResourceComponentsProps, useForm, useOne } from "@refinedev/core";
+import { ExperimentMaster } from "./create";
+import { IExperiment } from "../../interfaces";
+import { EXPERIMENT_COLLECTION } from "../../utility";
 
-export const BlogPostEdit: React.FC<IResourceComponentsProps> = () => {
+export const ExperimentEdit: React.FC<IResourceComponentsProps> = () => {
+
+  const { queryResult } = useForm<IExperiment, HttpError>();
+
+  const experiment = queryResult?.data?.data
+
+  // console.log(experiment)
   return (
-    <AntdEditInferencer
-      fieldTransformer={(field) => {
-        if (["$permissions", "$updatedAt", "$createdAt"].includes(field.key)) {
-          return false;
-        }
-        return field;
-      }}
-    />
+    <ExperimentMaster experimentToEdit={experiment} />
   );
 };

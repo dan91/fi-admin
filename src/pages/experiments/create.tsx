@@ -1,127 +1,106 @@
 import {
-  useCreate,
+  useGetIdentity,
   useNavigation,
 } from "@refinedev/core";
 import {
   Create,
+  Edit,
   SaveButton,
-  useFileUploadState,
+  useForm,
   useStepsForm,
 } from "@refinedev/antd";
 import {
   Button,
   Steps,
-  UploadFile,
 } from "antd";
 
-import { IExperiment, IIntervention, IPost, IStimulus } from "../../interfaces";
-import { EXPERIMENT_COLLECTION, POST_COLLECTION } from "../../utility";
+import { IExperiment } from "../../interfaces";
+import { EXPERIMENT_COLLECTION } from "../../utility";
 
-import { SetStateAction, useState } from "react";
-import { PostList } from "../posts";
+import { ReactNode, useEffect, useState } from "react";
 import { ExperimentForm } from "./experiment_form";
-import { PostForm } from "./post_form";
 import { InterventionForm } from "./intervention_form";
-import { UploadChangeParam } from "antd/es/upload";
 import { StimulusList } from "./stimulus_list";
 import { GroupTrialForm } from "./group_trial_form";
+import { Permission, Role } from "@refinedev/appwrite";
 
+interface ExperimentMasterProps {
+  experimentToEdit?: IExperiment | null
+}
+export const ExperimentMaster: React.FC<ExperimentMasterProps> = ({ experimentToEdit }) => {
 
-export const ExperimentCreate: React.FC = () => {
+  const [experiment, setExperiment] = useState<IExperiment | null>(null);
+
+  console.log('experiment is currently ', experiment)
+
   const {
     current,
     gotoStep,
     stepsProps,
-    formProps,
-    form,
-    saveButtonProps,
-    queryResult } = useStepsForm({ redirect: false });
+  } = useStepsForm<IExperiment>({ redirect: false });
 
-  const initialPostValues: IPost = {
-    author: '',
-    description: '',
-    image: "",
-    likes: 0,
-    shares: 0,
-    comments: 0
-  }
+  const { data: identity } = useGetIdentity<{
+    $id: string;
+  }>();
 
-  const [postValues, setPostValues] = useState(initialPostValues);
+  const { formProps, saveButtonProps, mutationResult, onFinish } = useForm<IExperiment>({
+    action: "create", redirect: false,
+    meta: {
+      writePermissions: identity ? [Permission.write(Role.user(identity?.$id ?? ''))] : [],
+      readPermissions: identity ? [Permission.read(Role.user(identity?.$id ?? ''))] : []
+    },
+    successNotification: () => { return { message: 'Experiment draft created', type: "success" } },
+  })
+  const { formProps: editFormProps, saveButtonProps: editSaveButtonProps, onFinish: onFinishEdit } =
+    useForm<IExperiment>({ action: "edit", redirect: false, id: experiment?.id })
 
-  const initialExperimentValues: IExperiment = {
-    name: 'FB Study 1',
-    required_participants: 20,
-    number_sessions: 5,
-    session_duration: 20,
-    proportion_manipulated: 30
-  }
+  useEffect(() => {
+    if (mutationResult?.data?.data) {
+      console.log('just created experiment???')
+      setExperiment(mutationResult.data.data as IExperiment);
+    }
+  }, [experiment, mutationResult]);
 
-  const [experimentValues, setExperimentValues] = useState(initialExperimentValues);
+  useEffect(() => {
+    if (experimentToEdit)
+      setExperiment(experimentToEdit)
+  })
 
-  const initialInterventionValues: IIntervention = {
-    name: '',
-    message: ''
-  }
-
-  const [interventionValues, setInterventionValues] = useState(initialInterventionValues);
-
-  const [addedExperimentId, setExperimentId] = useState({ experimentId: "" });
-
-  const { mutate } = useCreate();
 
   const { list } = useNavigation();
 
-  const { isLoading: uploadInProgress, onChange: changeUploadState } = useFileUploadState();
-
-
   const formList = [
-    <ExperimentForm formProps={formProps} setValues={setExperimentValues} values={experimentValues} />
-    ,
-    <InterventionForm formProps={formProps} setValues={setInterventionValues} values={interventionValues} />,
-    <StimulusList changeUploadState={changeUploadState} />,
-    <GroupTrialForm />
-    // <PostForm formProps={formProps} changeUploadState={changeUploadState} setValues={setPostValues} values={postValues} />,
-
+    <ExperimentForm goToNext={() => gotoStep(1)} onFinish={experiment ? onFinishEdit : onFinish} type={experiment ? 'edit' : 'create'} formProps={experiment ? editFormProps : formProps} saveButtonProps={experiment ? editSaveButtonProps : saveButtonProps} />,
   ];
-
-  const handleReset = () => {
-    form.resetFields();
-    setPostValues({ ...initialPostValues, experiment_id: postValues.experiment_id })
+  if (experiment) {
+    formList.push(
+      <InterventionForm experimentId={experiment.id} />,
+      <StimulusList experimentId={experiment.id} />,
+      <GroupTrialForm experimentId={experiment?.id} />)
   }
+
+
 
   return (
     <>
-      <Create
-        isLoading={queryResult?.isFetching}
-        saveButtonProps={saveButtonProps}
+      <CreateOrEdit
+        type={experiment ? 'edit' : 'create'}
         footerButtons={
           <>
-            {current < formList.length - 1 && (
-              <Button type="primary"  {...saveButtonProps} onClick={() => {
-                mutate({
-                  resource: EXPERIMENT_COLLECTION,
-                  values: experimentValues
-                },
-                  {
-                    onSuccess: (data) => {
-                      setExperimentId({ 'experimentId': data?.data?.id as string })
-                      setPostValues({ ...postValues, 'experiment_id': data?.data?.id as string })
-                      gotoStep(current + 1);
-                    }
-                  })
-              }} >Next</Button>
-            )}
-            {current === formList.length - 1 && (
+            {(current !== 0 || experiment) &&
               <Button
-                style={{ float: 'right', marginTop: 20 }}
+                style={{ float: 'right' }}
                 type='primary'
                 onClick={() => {
-                  list(EXPERIMENT_COLLECTION)
+                  if (current < formList.length - 1)
+                    return gotoStep(current + 1)
+                  else if (current == formList.length - 1)
+                    return list(EXPERIMENT_COLLECTION)
                 }}
               >
-                Done
+                {current < formList.length - 1 ? 'Next' : 'Done'}
               </Button>
-            )}
+            }
           </>
         }
       >
@@ -132,9 +111,19 @@ export const ExperimentCreate: React.FC = () => {
           <Steps.Step title={'Groups & Trials'} />
         </Steps>
         {formList[current]}
-      </Create >
+      </CreateOrEdit>
 
 
     </>
   );
 };
+
+type CreateOrEditProps = { children: ReactNode; type: string, footerButtons: ReactNode };
+
+
+export const CreateOrEdit: React.FC<CreateOrEditProps> = ({ children, type, footerButtons }) => {
+  console.log(type)
+  return type == "edit" ? <Edit headerButtons={<></>} footerButtons={footerButtons} > {children}</Edit >
+    : <Create footerButtons={footerButtons} > {children}</Create >
+}
+

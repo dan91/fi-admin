@@ -1,30 +1,41 @@
 import { Button, Col, Drawer, Form, FormProps, Input, List, Row, Typography } from "antd"
 import { Dispatch, SetStateAction, useState } from "react";
-import { IIntervention } from "../../interfaces";
+import { IExperiment, IIntervention } from "../../interfaces";
 import { INTERVENTION_COLLECTION } from "../../utility";
 import { Create, DeleteButton, EditButton, SaveButton, useDrawerForm, useSimpleList } from "@refinedev/antd";
-import { HttpError } from "@refinedev/core";
+import { HttpError, useGetIdentity } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
 import { PlusOutlined } from "@ant-design/icons";
+import { Permission, Role } from "@refinedev/appwrite";
 const { Text } = Typography;
 
 export interface InterventionFormProps {
-    formProps: FormProps;
-    setValues: Dispatch<SetStateAction<IIntervention>>;
-    values: IIntervention;
+    experimentId: string
 }
 
-export const InterventionForm: React.FC<InterventionFormProps> = ({ setValues, values }) => {
-    const { listProps } = useSimpleList<IIntervention>({ resource: INTERVENTION_COLLECTION });
+export const InterventionForm: React.FC<InterventionFormProps> = ({ experimentId }) => {
+    const { listProps } = useSimpleList<IIntervention>({
+        resource: INTERVENTION_COLLECTION,
+        filters: { permanent: [{ field: 'experimentId', operator: 'eq', value: experimentId }] }
+    });
     const [edit, setEdit] = useState(-1);
+
+    const { data: identity } = useGetIdentity<{
+        $id: string;
+    }>();
+
     const { formProps, drawerProps, show, saveButtonProps } = useDrawerForm<
         IIntervention,
         HttpError,
         IIntervention
     >({
         action: "create",
-        resource: INTERVENTION_COLLECTION
+        resource: INTERVENTION_COLLECTION,
+        meta: {
+            writePermissions: [Permission.read(Role.user(identity?.$id))],
+            readPermissions: [Permission.read(Role.user(identity?.$id))]
+        }
     });
 
 
@@ -77,6 +88,9 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ setValues, v
         <Drawer {...drawerProps}>
             <Create breadcrumb={false} saveButtonProps={saveButtonProps}>
                 <Form {...formProps} layout="vertical">
+                    <Form.Item name="experimentId" initialValue={experimentId} hidden>
+                        <Input type="hidden" />
+                    </Form.Item>
                     <Form.Item
                         label="Name"
                         name="name"

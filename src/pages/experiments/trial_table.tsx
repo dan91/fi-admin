@@ -17,12 +17,10 @@ import type { ColumnsType } from 'antd/es/table';
 import { Create, DeleteButton, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
 import { IIntervention, ITrial } from '../../interfaces';
 import { INTERVENTION_COLLECTION, TRIAL_COLLECTION } from '../../utility';
-import { HttpError, useList, useUpdate } from '@refinedev/core';
+import { HttpError, useGetIdentity, useList, useUpdate } from '@refinedev/core';
 import Title from 'antd/lib/typography/Title';
 import { TrialForm } from './trial_form';
-
-
-
+import { Permission, Role } from '@refinedev/appwrite';
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
     'data-row-key': string;
@@ -69,31 +67,52 @@ const Row = ({ children, ...props }: RowProps) => {
 };
 
 interface TrialTableProps {
-
+    experimentId?: string,
     groupId: string
 }
 
-export const TrialTable: React.FC<TrialTableProps> = ({ groupId }) => {
+export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId }) => {
     const { data: trials } = useList<ITrial>({ resource: TRIAL_COLLECTION, sorters: [{ field: 'key', order: 'asc' }], filters: [{ field: 'groupId', operator: 'eq', value: groupId }] });
-    const { data: interventions } = useList<IIntervention>({ resource: INTERVENTION_COLLECTION });
+    const { data: interventions } = useList<IIntervention>({ resource: INTERVENTION_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
     const { mutate } = useUpdate();
+
+    const { data: identity } = useGetIdentity<{
+        $id: string;
+    }>();
+
+
     const { formProps: trialCreateFormProps, drawerProps, saveButtonProps: trialSaveButtonProps, show } = useDrawerForm<
         ITrial,
         HttpError,
         ITrial
     >({
         action: "create",
-        resource: TRIAL_COLLECTION
+        resource: TRIAL_COLLECTION,
+        meta: {
+            writePermissions: identity ? [Permission.write(Role.user(identity?.$id ?? ''))] : [],
+            readPermissions: identity ? [Permission.read(Role.user(identity?.$id ?? ''))] : []
+        },
+        successNotification: () => {
+            return { message: 'Trial created', type: 'success' }
+        }
     });
 
-    const { formProps: trialEditFormProps, drawerProps: drawerEditProps, saveButtonProps: trialEditSaveButtonProps, show: showEdit } = useDrawerForm<
-        ITrial,
-        HttpError,
-        ITrial
-    >({
-        action: "edit",
-        resource: TRIAL_COLLECTION
-    });
+    const {
+        formProps: trialEditFormProps,
+        deleteButtonProps,
+        drawerProps: drawerEditProps,
+        saveButtonProps: trialEditSaveButtonProps,
+        show: showEdit } = useDrawerForm<
+            ITrial,
+            HttpError,
+            ITrial
+        >({
+            action: "edit",
+            resource: TRIAL_COLLECTION,
+            successNotification: () => {
+                return { message: 'Trial edited', type: 'success' }
+            }
+        });
 
     const columns: ColumnsType<ITrial> = [
         {
@@ -102,6 +121,9 @@ export const TrialTable: React.FC<TrialTableProps> = ({ groupId }) => {
         {
             title: 'Duration',
             dataIndex: 'duration',
+            render(value) {
+                return value + ' min'
+            },
         },
         {
             title: 'Intervention',
@@ -115,21 +137,19 @@ export const TrialTable: React.FC<TrialTableProps> = ({ groupId }) => {
         {
             title: 'Proportion Stimuli',
             dataIndex: 'proportionStimuli',
+            render(value) {
+                return value + ' %'
+            },
         },
         {
             title: '',
             dataIndex: 'id',
-            render: (value) => <>
+            render: (value) =>
                 <EditButton
                     hideText
                     size="small"
                     recordItemId={value}
-                    onClick={() => showEdit(value)} />
-                <DeleteButton
-                    resource={TRIAL_COLLECTION}
-                    hideText
-                    size='small'
-                    recordItemId={value} /></>,
+                    onClick={() => showEdit(value)} />,
             align: "right"
         },
     ];
@@ -205,12 +225,12 @@ export const TrialTable: React.FC<TrialTableProps> = ({ groupId }) => {
                 </SortableContext>
             </DndContext>
             <Drawer {...drawerProps}>
-                <Create breadcrumb={false} goBack={false} title="Add Trial" saveButtonProps={trialSaveButtonProps}>
+                <Create breadcrumb={false} title="Add Trial" saveButtonProps={trialSaveButtonProps}>
                     <TrialForm formProps={trialCreateFormProps} interventions={interventions?.data ?? []} groupId={groupId} nextKey={(dataSource.length > 0 ? dataSource[dataSource.length - 1].key + 1 : 1).toString()} />
                 </Create>
             </Drawer>
             <Drawer {...drawerEditProps}>
-                <Edit breadcrumb={false} canDelete={false} goBack={false} title="Edit Trial" saveButtonProps={trialEditSaveButtonProps}>
+                <Edit breadcrumb={false} canDelete={true} resource={TRIAL_COLLECTION} deleteButtonProps={deleteButtonProps} title="Edit Trial" saveButtonProps={trialEditSaveButtonProps}>
                     <TrialForm formProps={trialEditFormProps} interventions={interventions?.data ?? []} groupId={groupId} />
                 </Edit>
             </Drawer>

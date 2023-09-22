@@ -4,11 +4,12 @@ import { Form, Input, InputNumber } from "antd"
 import { FormProps } from "antd/lib"
 interface GroupFormProps {
     formProps: FormProps
-
+    experimentId?: string
 }
-export const GroupForm: React.FC<GroupFormProps> = ({ formProps }) => {
+export const GroupForm: React.FC<GroupFormProps> = ({ formProps, experimentId }) => {
 
     return <Form {...formProps} layout="vertical" >
+        <Form.Item name="experimentId" initialValue={experimentId} hidden><Input /></Form.Item>
         <Form.Item
             label="Name"
             name="name"

@@ -1,15 +1,15 @@
-import { Col, Form, Input, InputNumber, Row, Select, Upload } from "antd"
-import { IIntervention, IStimulus } from "../../interfaces"
+import { Col, Form, Input, Row, Upload } from "antd"
+import { IStimulus } from "../../interfaces"
 import { FormProps } from "antd/lib"
 import { STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../utility"
 import { RcFile } from "antd/es/upload"
-import { DeleteButtonProps } from "@refinedev/antd"
 interface StimulusFormProps {
     formProps: FormProps
     onFinish: (values: IStimulus) => void,
+    experimentId?: string
     close: () => void,
 }
-export const StimulusForm: React.FC<StimulusFormProps> = ({ formProps, onFinish, close }) => {
+export const StimulusForm: React.FC<StimulusFormProps> = ({ formProps, experimentId }) => {
 
     return <Form {...formProps} layout="vertical" onFinish={(stimulus: IStimulus) => {
         formProps.onFinish?.({
@@ -18,6 +18,9 @@ export const StimulusForm: React.FC<StimulusFormProps> = ({ formProps, onFinish,
             stimulusImage: JSON.stringify(stimulus.stimulusImage),
         });
     }}>
+        <Form.Item name="experimentId" initialValue={experimentId} hidden>
+            <Input type="hidden" />
+        </Form.Item>
         <Form.Item
             label="User Name"
             name="userName"

@@ -24,8 +24,8 @@ import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import {
-  BlogPostEdit,
   BlogPostShow,
+  ExperimentEdit,
   ExperimentList,
 } from "./pages/experiments";
 import {
@@ -34,12 +34,12 @@ import {
   CategoryList,
   CategoryShow,
 } from "./pages/categories";
-import { appwriteClient } from "./utility";
+import { EXPERIMENT_COLLECTION, appwriteClient } from "./utility";
 import { AppIcon } from "./components/app-icon";
 import { Dashboard } from "./pages/dashboard";
 import { DashboardOutlined } from "@ant-design/icons";
 import { PostCreate, PostEdit, PostList, PostShow } from "./pages/posts";
-import { ExperimentCreate } from "./pages/experiments/create";
+import { ExperimentMaster } from "./pages/experiments/create";
 import { StartExperiment } from "./pages/participant-view/startExperiment";
 import { title } from "process";
 function App() {
@@ -79,7 +79,7 @@ function App() {
                 }
               },
               {
-                name: "64b82f7b348727a801cb",
+                name: EXPERIMENT_COLLECTION,
                 list: "/experiments",
                 create: "/experiments/create",
                 edit: "/experiments/edit/:id",
@@ -140,15 +140,15 @@ function App() {
               >
                 <Route
                   index
-                  element={<NavigateToResource resource="dashboard" />}
+                  element={<NavigateToResource resource={EXPERIMENT_COLLECTION} />}
                 />
                 <Route path="/dashboard">
                   <Route index element={<Dashboard />} />
                 </Route>
                 <Route path="/experiments">
                   <Route index element={<ExperimentList />} />
-                  <Route path="create" element={<ExperimentCreate />} />
-                  <Route path="edit/:id" element={<BlogPostEdit />} />
+                  <Route path="create" element={<ExperimentMaster />} />
+                  <Route path="edit/:id" element={<ExperimentEdit />} />
                   <Route path="show/:id" element={<BlogPostShow />} />
                 </Route>
                 {/* <Route path="/posts">

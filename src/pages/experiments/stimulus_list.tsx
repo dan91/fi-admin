@@ -3,26 +3,33 @@ import { Dispatch, FormEventHandler, SetStateAction, useState } from "react";
 import { IFile, IStimulus } from "../../interfaces";
 import { APPWRITE_URL, AUTH_CODES_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../utility";
 import { Create, Edit, EditButton, ImageField, TagField, getValueFromEvent, useDrawerForm, useSimpleList } from "@refinedev/antd";
-import { HttpError } from "@refinedev/core";
+import { HttpError, useGetIdentity } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
 import Icon, { CommentOutlined, EditOutlined, LikeOutlined, PlusOutlined, ShareAltOutlined, UploadOutlined } from "@ant-design/icons";
 import React from "react";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 import { StimulusForm } from "./stimulus_form";
+import { Permission, Role } from "@refinedev/appwrite";
 const { Text } = Typography;
 
 export interface StimulusFormProps {
-    // formProps: FormProps;
-    changeUploadState: (info: UploadChangeParam<UploadFile<any>>) => void;
-    // setValues: Dispatch<SetStateAction<IStimulus>>;
-    // values: IStimulus;
+    experimentId: string
 }
 
-export const StimulusList: React.FC<StimulusFormProps> = ({ changeUploadState }) => {
-    const { listProps } = useSimpleList<IStimulus>({ resource: STIMULUS_COLLECTION });
+export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
+
+    const { listProps } = useSimpleList<IStimulus>({
+        resource: STIMULUS_COLLECTION,
+        filters: { permanent: [{ field: 'experimentId', operator: 'eq', 'value': experimentId }] }
+    });
 
     const [edit, setEdit] = useState(-1);
+
+    const { data: identity } = useGetIdentity<{
+        $id: string;
+    }>();
+
     const { formProps, drawerProps, show, saveButtonProps, onFinish, close } = useDrawerForm<
         IStimulus,
         HttpError,
@@ -33,6 +40,10 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ changeUploadState })
         successNotification: () => {
             return { message: 'Post wurde erstellt', type: 'success' }
         },
+        meta: {
+            writePermissions: identity ? [Permission.write(Role.user(identity?.$id ?? ''))] : [],
+            readPermissions: identity ? [Permission.read(Role.user(identity?.$id ?? ''))] : []
+        }
     });
 
     const { formProps: editFormProps, deleteButtonProps, drawerProps: editDrawerProps, show: editShow, saveButtonProps: editSaveButtonProps, onFinish: onEditFinish, close: editClose } = useDrawerForm<
@@ -43,7 +54,6 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ changeUploadState })
         action: "edit",
         resource: STIMULUS_COLLECTION,
         queryOptions: {
-
             select: ({ data }) => {
                 return {
                     data: {
@@ -59,7 +69,7 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ changeUploadState })
             },
         },
         successNotification: () => {
-            return { message: 'Post wurde bearbeitet', type: 'success' }
+            return { message: 'Post edited', type: 'success' }
         },
 
     });
@@ -142,12 +152,12 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ changeUploadState })
         <List {...listProps} renderItem={renderItem} pagination={false} itemLayout="vertical" grid={{ gutter: 10, sm: 1, md: 2, lg: 3, xl: 3, xxl: 4 }} />
         <Drawer {...drawerProps}>
             <Create breadcrumb={false} saveButtonProps={saveButtonProps}>
-                <StimulusForm formProps={formProps} onFinish={onFinish} close={close} />
+                <StimulusForm experimentId={experimentId} formProps={formProps} onFinish={onFinish} close={close} />
             </Create>
         </Drawer >
         <Drawer {...editDrawerProps}>
             <Edit breadcrumb={false} resource={STIMULUS_COLLECTION} saveButtonProps={editSaveButtonProps} deleteButtonProps={deleteButtonProps}>
-                <StimulusForm formProps={editFormProps} onFinish={onEditFinish} close={editClose} />
+                <StimulusForm experimentId={experimentId} formProps={editFormProps} onFinish={onEditFinish} close={editClose} />
             </Edit>
         </Drawer >
     </>
