@@ -70,14 +70,7 @@ function App() {
             routerProvider={routerBindings}
             i18nProvider={i18nProvider}
             resources={[
-              {
-                name: 'dashboard',
-                list: '/dashboard',
-                meta: {
-                  label: 'Dashboard',
-                  icon: <DashboardOutlined />
-                }
-              },
+
               {
                 name: EXPERIMENT_COLLECTION,
                 list: "/experiments",
@@ -89,28 +82,7 @@ function App() {
                   label: 'Experiments'
                 },
               },
-              {
-                name: "64bfc5ca89fc8d8fbfa1",
-                list: "/posts",
-                create: "/posts/create",
-                edit: "/posts/edit/:id",
-                show: "/posts/show/:id",
-                meta: {
-                  canDelete: true,
-                  label: 'Posts'
-                },
-              },
-              {
-                name: "64b83e127ef3657a5f53",
-                list: "/categories",
-                create: "/categories/create",
-                edit: "/categories/edit/:id",
-                show: "/categories/show/:id",
-                meta: {
-                  canDelete: true,
-                  label: 'Likes'
-                },
-              },
+
             ]}
             options={{
               syncWithLocation: true,
