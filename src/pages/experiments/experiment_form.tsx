@@ -2,11 +2,12 @@ import { Col, Form, FormProps, Input, Row, Select } from "antd"
 import { Dispatch, SetStateAction } from "react";
 import { IExperiment } from "../../interfaces";
 import { SaveButton, SaveButtonProps } from "@refinedev/antd";
+import { CreateResponse, UpdateResponse } from "@refinedev/core";
 
 export interface ExperimentFormProps {
     formProps: FormProps;
     saveButtonProps: SaveButtonProps,
-    onFinish: (values: IExperiment) => Promise<void>
+    onFinish: ((values: IExperiment) => Promise<void | UpdateResponse<IExperiment> | CreateResponse<IExperiment>>)
     goToNext: () => void
     type: string
 }

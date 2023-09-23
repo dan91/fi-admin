@@ -33,8 +33,8 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ experimentId
         action: "create",
         resource: INTERVENTION_COLLECTION,
         meta: {
-            writePermissions: [Permission.read(Role.user(identity?.$id))],
-            readPermissions: [Permission.read(Role.user(identity?.$id))]
+            writePermissions: identity ? [Permission.write(Role.user(identity?.$id ?? ''))] : [],
+            readPermissions: identity ? [Permission.read(Role.user(identity?.$id ?? ''))] : []
         }
     });
 

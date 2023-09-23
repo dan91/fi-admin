@@ -38,7 +38,6 @@ import { EXPERIMENT_COLLECTION, appwriteClient } from "./utility";
 import { AppIcon } from "./components/app-icon";
 import { Dashboard } from "./pages/dashboard";
 import { DashboardOutlined } from "@ant-design/icons";
-import { PostCreate, PostEdit, PostList, PostShow } from "./pages/posts";
 import { ExperimentMaster } from "./pages/experiments/create";
 import { StartExperiment } from "./pages/participant-view/startExperiment";
 import { title } from "process";
