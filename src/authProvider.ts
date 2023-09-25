@@ -42,7 +42,7 @@ export const authProvider: AuthBindings = {
       await account.create(uuidv4(), email, password);
       return {
         success: true,
-        redirectTo: "/login",
+        // redirectTo: "/login",
       };
     } catch (error) {
       const { type, message, code } = error as AppwriteException;

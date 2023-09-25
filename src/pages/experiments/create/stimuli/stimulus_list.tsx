@@ -1,7 +1,7 @@
 import { Avatar, Button, Card, Col, Drawer, Form, FormProps, Input, List, Row, Select, Space, Table, Tag, Typography, Upload } from "antd"
 import { Dispatch, FormEventHandler, SetStateAction, useState } from "react";
 import { IFile, IStimuliSet, IStimulus } from "../../../../interfaces";
-import { APPWRITE_URL, AUTH_CODES_COLLECTION, STIMULI_SET_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../../../utility";
+import { APPWRITE_URL, EXPERIMENT_PARTICIPATIONS, STIMULI_SET_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../../../utility";
 import { Create, Edit, EditButton, ImageField, TagField, getValueFromEvent, useDrawerForm, useSimpleList } from "@refinedev/antd";
 import { HttpError, useGetIdentity, useList, useMany } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";

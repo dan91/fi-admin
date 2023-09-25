@@ -16,7 +16,7 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
     const interventionOptions = interventions.map((intervention: IIntervention) => {
         return { value: intervention.id, label: intervention.name }
     })
-    interventionOptions.unshift({ value: '', label: 'Control' })
+    interventionOptions.unshift({ value: '', label: 'None' })
 
 
     return <Form {...formProps} layout="vertical">

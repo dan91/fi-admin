@@ -18,7 +18,7 @@ import routerBindings, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { useTranslation } from "react-i18next";
-import { HashRouter, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Outlet, Route, Routes } from "react-router-dom";
 import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
@@ -50,8 +50,7 @@ function App() {
   const icon = <AppIcon />
 
   return (
-    <HashRouter>
-      {/* <GitHubBanner /> */}
+    <BrowserRouter>
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <Refine
@@ -165,9 +164,15 @@ function App() {
                 />
               </Route>
               <Route
-                path="/start-experiment/:prolificId/:studyId"
+                path="/start-experiment"
                 element={<StartExperiment />}
-              />
+              >
+                <Route
+                  path=":prolificId/:experimentId"
+                  element={<StartExperiment />}
+                />
+              </Route>
+
             </Routes>
 
             <RefineKbar />
@@ -176,7 +181,7 @@ function App() {
           </Refine>
         </ColorModeContextProvider>
       </RefineKbarProvider>
-    </HashRouter >
+    </BrowserRouter >
   );
 }
 

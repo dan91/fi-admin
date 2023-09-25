@@ -72,3 +72,13 @@ export interface IStimuliSet {
     experimentId: string
 }
 
+export interface IExperimentParticipation {
+    id: string,
+    prolificId: string
+    expiryDate: Date
+    status: 'receivedCode' | 'startedExperiment' | 'finishedExperiment'
+    code: number,
+    experimentId: string,
+    groupId: string,
+}
+
