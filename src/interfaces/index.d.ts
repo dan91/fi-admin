@@ -13,8 +13,9 @@ export interface IFile {
 
 export interface IExperiment {
     id: string;
+    $createdAt: Date
     name: string;
-    status?: 'draft' | 'ready' | 'published' | 'paused' | 'completed';
+    status: ExperimentStatus;
 }
 
 export interface IPost {
@@ -29,7 +30,7 @@ export interface IPost {
 }
 
 export interface IIntervention {
-    id?: string,
+    id: string,
     name: string,
     message: string,
     apply_on_likes?: boolean,
@@ -38,7 +39,7 @@ export interface IIntervention {
 }
 
 export interface IStimulus {
-    id?: string,
+    id: string,
     userName: string,
     userImage: string,
     stimulusText: string,
@@ -46,7 +47,7 @@ export interface IStimulus {
     comments: number,
     shares: number,
     stimulusImage: string,
-    stimuliSets: number[]
+    stimuliSets: string[]
 }
 
 export interface IGroup {
@@ -58,8 +59,16 @@ export interface IGroup {
 export interface ITrial {
     id: string,
     groupId: string,
-    key: number,
+    key: string,
     interventionId: string,
     duration: number,
-    proportionStimuli: number
+    proportionStimuli: number,
+    stimuliSetId: string
 }
+
+export interface IStimuliSet {
+    id: string,
+    name: string,
+    experimentId: string
+}
+

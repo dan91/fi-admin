@@ -1,16 +1,18 @@
 import { Avatar, Button, Card, Col, Drawer, Form, FormProps, Input, List, Row, Select, Space, Table, Tag, Typography, Upload } from "antd"
 import { Dispatch, FormEventHandler, SetStateAction, useState } from "react";
-import { IFile, IStimulus } from "../../interfaces";
-import { APPWRITE_URL, AUTH_CODES_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../utility";
+import { IFile, IStimuliSet, IStimulus } from "../../../../interfaces";
+import { APPWRITE_URL, AUTH_CODES_COLLECTION, STIMULI_SET_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../../../utility";
 import { Create, Edit, EditButton, ImageField, TagField, getValueFromEvent, useDrawerForm, useSimpleList } from "@refinedev/antd";
-import { HttpError, useGetIdentity } from "@refinedev/core";
+import { HttpError, useGetIdentity, useList, useMany } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
-import Icon, { CommentOutlined, EditOutlined, LikeOutlined, PlusOutlined, ShareAltOutlined, UploadOutlined } from "@ant-design/icons";
+import Icon, { CommentOutlined, EditOutlined, FileImageOutlined, LikeOutlined, PlusOutlined, ShareAltOutlined, UploadOutlined } from "@ant-design/icons";
 import React from "react";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 import { StimulusForm } from "./stimulus_form";
 import { Permission, Role } from "@refinedev/appwrite";
+import { EmptyList } from "../../../../utility/empty";
+import { PageTitle } from "../../../../utility/pageTitle";
 const { Text } = Typography;
 
 export interface StimulusFormProps {
@@ -24,13 +26,24 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
         filters: { permanent: [{ field: 'experimentId', operator: 'eq', 'value': experimentId }] }
     });
 
-    const [edit, setEdit] = useState(-1);
+    const { data: allStimuliSets } = useList<IStimuliSet>({
+        resource: STIMULI_SET_COLLECTION,
+        filters: [
+            {
+                field: "experimentId",
+                operator: "eq",
+                value: experimentId,
+            },
+        ],
+    });
+
+
 
     const { data: identity } = useGetIdentity<{
         $id: string;
     }>();
 
-    const { formProps, drawerProps, show, saveButtonProps, onFinish, close } = useDrawerForm<
+    const { formProps, drawerProps, show, saveButtonProps } = useDrawerForm<
         IStimulus,
         HttpError,
         IStimulus
@@ -38,7 +51,7 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
         action: "create",
         resource: STIMULUS_COLLECTION,
         successNotification: () => {
-            return { message: 'Post wurde erstellt', type: 'success' }
+            return { message: 'Stimuls created', type: 'success' }
         },
         meta: {
             writePermissions: identity ? [Permission.write(Role.user(identity?.$id ?? ''))] : [],
@@ -46,7 +59,7 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
         }
     });
 
-    const { formProps: editFormProps, deleteButtonProps, drawerProps: editDrawerProps, show: editShow, saveButtonProps: editSaveButtonProps, onFinish: onEditFinish, close: editClose } = useDrawerForm<
+    const { formProps: editFormProps, deleteButtonProps, drawerProps: editDrawerProps, show: editShow, saveButtonProps: editSaveButtonProps } = useDrawerForm<
         IStimulus,
         HttpError,
         IStimulus
@@ -69,7 +82,7 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
             },
         },
         successNotification: () => {
-            return { message: 'Post edited', type: 'success' }
+            return { message: 'Stimulus edited', type: 'success' }
         },
 
     });
@@ -81,16 +94,11 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
         </Space>
     );
 
-
-    const renderItem = (item: IStimulus, index: number) => {
-        return index == edit ? renderItemEdit(item, index) : renderItemDisplay(item, index)
-    }
-
-    const renderItemDisplay = (stimulus: IStimulus, index: number) => {
+    const renderItem = (stimulus: IStimulus, index: number) => {
         const userImage = stimulus?.userImage ? (JSON.parse(stimulus.userImage) as IFile[]) : [];
-        const stimulusImage = stimulus?.userImage ? (JSON.parse(stimulus.userImage) as IFile[]) : [];
+        const stimulusImage = stimulus?.stimulusImage ? (JSON.parse(stimulus.stimulusImage) as IFile[]) : [];
 
-        const { id, likes, comments, shares, userName, stimulusText } = stimulus;
+        const { id, likes, comments, shares, userName, stimulusText, stimuliSets } = stimulus;
         return <List.Item
             key={id} >
             <Card size="small">
@@ -102,7 +110,8 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
                     <Col style={{ minHeight: '24px' }}>{stimulusText}</Col></Row>
                 <Row gutter={[20, 20]} style={{ padding: '10px 0' }}>
                     <Col>
-                        <ImageField height={100} value={stimulusImage.length > 0 ? stimulusImage[0].url : ''} />
+                        {stimulusImage.length == 0 ? <FileImageOutlined style={{ fontSize: 100 }} /> :
+                            <ImageField height={100} value={stimulusImage[0].url} />}
                     </Col>
                 </Row>
                 <Row gutter={[20, 20]} style={{ padding: '10px 0' }}>
@@ -116,48 +125,26 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
                         <IconText icon={ShareAltOutlined} text={shares ? shares.toString() : '0'} key="list-vertical-message" />
                     </Col>
                 </Row>
+                <Row>
+                    <Col>In Stimuli Sets: {stimuliSets.length == 0 ? <>None</> : stimuliSets.map((id) => <TagField key={id} value={allStimuliSets?.data.find((set) => set.id == id)?.name} />)}</Col>
+                </Row>
             </Card>
         </List.Item>
     };
 
-    const renderItemEdit = (item: IStimulus, index: number) => {
-        // const { id, name, message } = item;
-
-        // function _saveName(value: string): void {
-        //     item.name = value
-        // }
-
-        // function _saveMessage(value: string): void {
-        //     item.message = value
-        // }
-
-        return (
-            <>
-                <List.Item actions={[<Button type="link" onClick={() => { setEdit(-1) }}>Save</Button>, <Button type="link" onClick={() => { setEdit(-1) }}>Cancel</Button>]}>
-                    {/* <List.Item.Meta title={<Text editable={{
-                        editing: true, onChange: _saveName
-                    }}>{name}</Text>} description={<Text editable={{ editing: true, onChange: _saveMessage }}>{message}</Text>} /> */}
-                </List.Item >
-            </>
-        );
-    };
 
     return <>
-        <Row style={{ paddingTop: "24px" }} >
-            <Col span={18}>
-                <Title level={3}>Stimuli <Button onClick={() => show()}><PlusOutlined /> Add</Button></Title>
-            </Col>
+        <PageTitle title="Stimuli" buttonAction={() => show()} buttonIcon={<PlusOutlined />} />
 
-        </Row >
-        <List {...listProps} renderItem={renderItem} pagination={false} itemLayout="vertical" grid={{ gutter: 10, sm: 1, md: 2, lg: 3, xl: 3, xxl: 4 }} />
+        {listProps.dataSource?.length == 0 ? <EmptyList text="stimuli" callback={show} /> : <List {...listProps} renderItem={renderItem} pagination={false} itemLayout="vertical" grid={{ gutter: 10, sm: 1, md: 2, lg: 3, xl: 3, xxl: 4 }} />}
         <Drawer {...drawerProps}>
-            <Create breadcrumb={false} saveButtonProps={saveButtonProps}>
-                <StimulusForm experimentId={experimentId} formProps={formProps} onFinish={onFinish} close={close} />
+            <Create breadcrumb={false} saveButtonProps={saveButtonProps} title="Add Stimulus" goBack={false}>
+                <StimulusForm experimentId={experimentId} formProps={formProps} />
             </Create>
         </Drawer >
         <Drawer {...editDrawerProps}>
-            <Edit breadcrumb={false} resource={STIMULUS_COLLECTION} saveButtonProps={editSaveButtonProps} deleteButtonProps={deleteButtonProps}>
-                <StimulusForm experimentId={experimentId} formProps={editFormProps} onFinish={onEditFinish} close={editClose} />
+            <Edit breadcrumb={false} title="Edit Stimulus" goBack={false} resource={STIMULUS_COLLECTION} saveButtonProps={editSaveButtonProps} deleteButtonProps={deleteButtonProps}>
+                <StimulusForm experimentId={experimentId} formProps={editFormProps} />
             </Edit>
         </Drawer >
     </>

@@ -1,4 +1,4 @@
-import { Authenticated, GitHubBanner, Refine } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import {
   AuthPage,
@@ -7,7 +7,6 @@ import {
   ThemedLayoutV2,
   ThemedSiderV2,
   ThemedTitleV2,
-  Title,
 } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
@@ -24,7 +23,7 @@ import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import {
-  BlogPostShow,
+  ExperimentShow,
   ExperimentEdit,
   ExperimentList,
 } from "./pages/experiments";
@@ -37,10 +36,8 @@ import {
 import { EXPERIMENT_COLLECTION, appwriteClient } from "./utility";
 import { AppIcon } from "./components/app-icon";
 import { Dashboard } from "./pages/dashboard";
-import { DashboardOutlined } from "@ant-design/icons";
 import { ExperimentMaster } from "./pages/experiments/create";
 import { StartExperiment } from "./pages/participant-view/startExperiment";
-import { title } from "process";
 function App() {
   const { t, i18n } = useTranslation();
 
@@ -120,7 +117,7 @@ function App() {
                   <Route index element={<ExperimentList />} />
                   <Route path="create" element={<ExperimentMaster />} />
                   <Route path="edit/:id" element={<ExperimentEdit />} />
-                  <Route path="show/:id" element={<BlogPostShow />} />
+                  <Route path="show/:id" element={<ExperimentShow />} />
                 </Route>
                 {/* <Route path="/posts">
                   <Route index element={<PostList />} />

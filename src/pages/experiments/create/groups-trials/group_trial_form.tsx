@@ -1,15 +1,17 @@
 import { Alert, Button, Col, Collapse, CollapseProps, Drawer, Form, FormProps, Input, InputNumber, List, Row, Spin, Typography } from "antd"
-import { Dispatch, SetStateAction, useState } from "react";
-import { IGroup, ITrial } from "../../interfaces";
-import { GROUP_COLLECTION, TRIAL_COLLECTION } from "../../utility";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { IGroup, ITrial } from "../../../../interfaces";
+import { GROUP_COLLECTION, TRIAL_COLLECTION } from "../../../../utility";
 import { Create, Edit, EditButton, useDrawerForm } from "@refinedev/antd";
 import { HttpError, useGetIdentity, useList, useTable } from "@refinedev/core";
 import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/typography/Title";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
-import { TrialTable } from "./trial_table";
 import { GroupForm } from "./group_form";
 import { Permission, Role } from "@refinedev/appwrite";
+import { EmptyList } from "../../../../utility/empty";
+import { PageTitle } from "../../../../utility/pageTitle";
+import { TrialTable } from "./trials/trial_table";
 const { Text } = Typography;
 
 export interface GroupTrialsFormProps {
@@ -55,17 +57,15 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = ({ experimentId })
         extra: <EditButton size="small" type="link" onClick={(e) => { e.stopPropagation(); showEdit(group.id) }} />
     }));
 
-    console.log(groups)
+    const confirmTitle = deleteButtonProps.confirmTitle = 'Are you sure? This will also delete ALL TRIALS in this group.'
+    const b = { confirmTitle, ...deleteButtonProps }
+
+
 
     return <>
-        <Row style={{ paddingTop: "24px" }} >
-            <Col span={18}>
-                <Title level={3}>Groups <Button onClick={() => show()}><UsergroupAddOutlined /> Add Group</Button></Title>
-            </Col>
-
-        </Row>
+        <PageTitle title='Groups' buttonIcon={<UsergroupAddOutlined />} buttonText=" Add Group" buttonAction={() => show()} />
         {isLoading ? <Spin /> :
-            groups?.data && groups.data.length > 0 ? <Collapse items={collapseItems} /> : <Alert message="No groups added." type="info" />
+            groups?.data && groups.data.length > 0 ? <Collapse items={collapseItems} /> : <EmptyList text="groups" callback={show} />
         }
         <Drawer {...drawerProps}>
             <Create breadcrumb={false} goBack={false} title="Add Group" saveButtonProps={saveButtonProps}>
@@ -73,11 +73,9 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = ({ experimentId })
             </Create>
         </Drawer>
         <Drawer {...editDrawerProps}>
-            <Edit resource={GROUP_COLLECTION} deleteButtonProps={deleteButtonProps} breadcrumb={false} goBack={false} title="Edit Group" saveButtonProps={saveEditButtonProps}>
+            <Edit resource={GROUP_COLLECTION} deleteButtonProps={b} breadcrumb={false} goBack={false} title="Edit Group" saveButtonProps={saveEditButtonProps}>
                 <GroupForm formProps={editFormProps} experimentId={experimentId} />
             </Edit>
-        </Drawer>
+        </Drawer >
     </>
 }
-
-

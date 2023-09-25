@@ -12,15 +12,17 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Button, Drawer, Form, Input, InputNumber, Select, Space, Table } from 'antd';
+import { Button, Drawer, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Create, DeleteButton, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
-import { IIntervention, ITrial } from '../../interfaces';
-import { INTERVENTION_COLLECTION, TRIAL_COLLECTION } from '../../utility';
-import { HttpError, useGetIdentity, useList, useUpdate } from '@refinedev/core';
+import { CloneButton, Create, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
+import { IIntervention, IStimuliSet, ITrial } from '../../../../../interfaces';
+import { INTERVENTION_COLLECTION, STIMULI_SET_COLLECTION, TRIAL_COLLECTION } from '../../../../../utility';
+import { HttpError, useCreate, useGetIdentity, useList, useUpdate } from '@refinedev/core';
 import Title from 'antd/lib/typography/Title';
 import { TrialForm } from './trial_form';
 import { Permission, Role } from '@refinedev/appwrite';
+import { EmptyList } from '../../../../../utility/empty';
+import { PageTitle } from '../../../../../utility/pageTitle';
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
     'data-row-key': string;
@@ -74,7 +76,16 @@ interface TrialTableProps {
 export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId }) => {
     const { data: trials } = useList<ITrial>({ resource: TRIAL_COLLECTION, sorters: [{ field: 'key', order: 'asc' }], filters: [{ field: 'groupId', operator: 'eq', value: groupId }] });
     const { data: interventions } = useList<IIntervention>({ resource: INTERVENTION_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
+    const { data: stimuliSets } = useList<IStimuliSet>({ resource: STIMULI_SET_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
     const { mutate } = useUpdate();
+    const { mutate: clone } = useCreate<ITrial>()
+
+    const keys = trials?.data.map((t) => t.key ? parseInt(t.key) : 0) as number[]
+    let highestKey = 0
+    if (keys) {
+        highestKey = Math.max(...keys)
+        console.log(keys, highestKey)
+    }
 
     const { data: identity } = useGetIdentity<{
         $id: string;
@@ -100,6 +111,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     const {
         formProps: trialEditFormProps,
         deleteButtonProps,
+        queryResult,
         drawerProps: drawerEditProps,
         saveButtonProps: trialEditSaveButtonProps,
         show: showEdit } = useDrawerForm<
@@ -121,6 +133,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
         {
             title: 'Duration',
             dataIndex: 'duration',
+            key: 'duration',
             render(value) {
                 return value + ' min'
             },
@@ -128,31 +141,51 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
         {
             title: 'Intervention',
             dataIndex: 'interventionId',
+            key: 'intervention',
             render: (value: string) => {
-                return <TextField value={interventions?.data.find(
+                return <TextField key={value} value={interventions?.data.find(
                     (intervention) => intervention.id == value
+                )?.name ?? 'None'} />;
+            }
+        },
+        {
+            title: 'Stimuli Set',
+            dataIndex: 'stimuliSetId',
+            key: 'stimuliSet',
+            render: (value: string) => {
+                return <TextField key={value} value={stimuliSets?.data.find(
+                    (stimuliSet) => stimuliSet.id == value
                 )?.name} />;
             }
         },
         {
-            title: 'Proportion Stimuli',
+            title: '% Stimuli',
             dataIndex: 'proportionStimuli',
+            key: 'proportionStimuli',
             render(value) {
-                return value + ' %'
+                return value + '%'
             },
         },
         {
             title: '',
             dataIndex: 'id',
-            render: (value) =>
-                <EditButton
+            render: (value, record: ITrial) =>
+                <Space><EditButton
                     hideText
                     size="small"
                     recordItemId={value}
-                    onClick={() => showEdit(value)} />,
+                    onClick={() => showEdit(value)} />
+                    <CloneButton onClick={() => cloneItem(record)} size='small' /></Space>,
             align: "right"
         },
     ];
+
+    const cloneItem = (trial: ITrial) => {
+        const { duration, groupId, interventionId, proportionStimuli, stimuliSetId } = trial;
+        const key = (highestKey + 1).toString()
+        const clonedTrial = { duration, groupId, key, interventionId, proportionStimuli, stimuliSetId }
+        clone({ resource: TRIAL_COLLECTION, values: clonedTrial })
+    }
 
     const [dataSource, setDataSource] = useState<ITrial[]>([]);
     useEffect(() => {
@@ -208,30 +241,32 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
                     items={dataSource.map((i) => i.key)}
                     strategy={verticalListSortingStrategy}
                 >
-                    <Title level={5}>Trials <Button size="middle" onClick={() => { show(); }}><PlusOutlined /> Add Trial</Button></Title>
+                    <PageTitle title='Trials' titleLevel={5} buttonAction={() => { show(); }} buttonIcon={<PlusOutlined />} buttonText='Add Trial' buttonSize='small' />
 
-                    <Table
-                        components={{
-                            body: {
-                                row: Row,
-                            },
-                        }}
-                        size="small"
-                        pagination={false}
-                        rowKey="key"
-                        columns={columns}
-                        dataSource={dataSource}
-                    />
+
+                    {dataSource.length == 0 ? <EmptyList text="trials" callback={show} /> :
+                        <Table
+                            components={{
+                                body: {
+                                    row: Row,
+                                },
+                            }}
+                            size="small"
+                            pagination={false}
+                            rowKey="key"
+                            columns={columns}
+                            dataSource={dataSource}
+                        />}
                 </SortableContext>
             </DndContext>
             <Drawer {...drawerProps}>
-                <Create breadcrumb={false} title="Add Trial" saveButtonProps={trialSaveButtonProps}>
-                    <TrialForm formProps={trialCreateFormProps} interventions={interventions?.data ?? []} groupId={groupId} nextKey={(dataSource.length > 0 ? dataSource[dataSource.length - 1].key + 1 : 1).toString()} />
+                <Create breadcrumb={false} title="Add Trial" goBack={false} saveButtonProps={trialSaveButtonProps}>
+                    <TrialForm formProps={trialCreateFormProps} interventions={interventions?.data ?? []} stimuliSets={stimuliSets?.data ?? []} groupId={groupId} nextKey={(dataSource.length > 0 ? dataSource[dataSource.length - 1].key + 1 : 1).toString()} />
                 </Create>
             </Drawer>
             <Drawer {...drawerEditProps}>
-                <Edit breadcrumb={false} canDelete={true} resource={TRIAL_COLLECTION} deleteButtonProps={deleteButtonProps} title="Edit Trial" saveButtonProps={trialEditSaveButtonProps}>
-                    <TrialForm formProps={trialEditFormProps} interventions={interventions?.data ?? []} groupId={groupId} />
+                <Edit breadcrumb={false} canDelete={true} resource={TRIAL_COLLECTION} deleteButtonProps={deleteButtonProps} title="Edit Trial" goBack={false} saveButtonProps={trialEditSaveButtonProps}>
+                    <TrialForm formProps={trialEditFormProps} interventions={interventions?.data ?? []} stimuliSets={stimuliSets?.data ?? []} groupId={groupId} />
                 </Edit>
             </Drawer>
         </>);

@@ -1,6 +1,5 @@
 import { Col, Form, FormProps, Input, Row, Select } from "antd"
-import { Dispatch, SetStateAction } from "react";
-import { IExperiment } from "../../interfaces";
+import { IExperiment } from "../../../../interfaces";
 import { SaveButton, SaveButtonProps } from "@refinedev/antd";
 import { CreateResponse, UpdateResponse } from "@refinedev/core";
 
