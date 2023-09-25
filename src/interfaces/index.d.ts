@@ -1,5 +1,3 @@
-import { BaseRecord } from "@refinedev/core";
-
 export interface IFile {
     name: string;
     percent: number;
@@ -73,12 +71,12 @@ export interface IStimuliSet {
 }
 
 export interface IExperimentParticipation {
-    id: string,
-    prolificId: string
-    expiryDate: Date
-    status: 'receivedCode' | 'startedExperiment' | 'finishedExperiment'
-    code: number,
-    experimentId: string,
-    groupId: string,
+    id?: string;
+    prolificId: string;
+    expiryDate: Date;
+    status: ParticipationStatus;
+    code: number;
+    experimentId: string;
+    groupId: string;
 }
 

@@ -1,11 +1,12 @@
-import { ThemedLayoutV2, ThemedSiderV2 } from "@refinedev/antd";
+import { ThemedLayoutV2 } from "@refinedev/antd";
 import { LogicalFilter, useCreate, useList, useRegister } from "@refinedev/core";
-import { Button, Card, Col, Row, Steps } from "antd";
+import { Button, Card, Col, Result, Row } from "antd";
 import { useParams } from "react-router-dom";
 import { EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION } from "../../utility";
-import { useCallback, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import Title from "antd/es/typography/Title";
 import { IExperimentParticipation, IGroup } from "../../interfaces";
+import { ParticipationStatus } from "../../interfaces/enums";
 
 type RegisterVariables = {
     email: string;
@@ -34,44 +35,16 @@ export const StartExperiment: React.FC = () => {
     });
 
     const participations = participationsData?.data ?? []
-    console.log(participations)
 
     const [code, setCode] = useState(0);
+    const [error, setError] = useState<ReactNode | null>(null)
 
     const generateRandomNumber = () => {
         const randomNumber = Math.floor(1000 + Math.random() * 9000);
         return randomNumber;
     };
 
-    let runBefore = false
-
-    const generateCode = () => {
-        if (runBefore)
-            return
-        runBefore = true
-        const code = generateRandomNumber()
-        const fifteenMinutesFromNow = () => {
-            const currentDate = new Date();
-            const fifteenMinutesFromNow = new Date(currentDate.getTime() + 15 * 60000);
-            return fifteenMinutesFromNow;
-        };
-
-        const date = fifteenMinutesFromNow();
-
-        if (!prolificId || !experimentId)
-            return
-        const password = code.toString() + code.toString()
-        // register({
-        //     email: prolificId + '@prolific.com',
-        //     password: password,
-        // }, {
-        //     onError: (data) => {
-        //         console.log('ERROR', data);
-        //     },
-        //     onSuccess(data, variables, context) {
-
-
-
+    const getGroupsWithAvailableSlots = (): IGroup[] => {
         const groupsWithAvailableSlots = []
         for (let i = 0; i < groups.length; i++) {
             const group = groups[i]
@@ -82,61 +55,76 @@ export const StartExperiment: React.FC = () => {
             if (isSpace)
                 groupsWithAvailableSlots.push(group)
         }
-
-        const randomGroup = groupsWithAvailableSlots[Math.floor(Math.random() * groupsWithAvailableSlots.length)];
-        if (!randomGroup) {
-            console.log('ALL GROUPS ARE FULL')
-            return
-        }
-
-        const selectedGroup = randomGroup.id
-
-        create({
-            resource: EXPERIMENT_PARTICIPATIONS,
-            values: {
-                prolificId: prolificId,
-                code: code,
-                expiryDate: date,
-                experimentId: experimentId,
-                groupId: selectedGroup,
-                status: 'receivedCode'
-            }
-            //     });
-            // },
-        })
-
-        setCode(generateRandomNumber())
+        return groupsWithAvailableSlots
     }
 
-    // useEffect(() => {
-    //     if (code == 0)
-    //         generateCode();
-    // }, [generateCode, code])
+    const errorResult = <Result
+        title="No more free seats in this experiment"
+        extra={
+            <Button type="primary" onClick={() => generateCode()}>
+                Try again
+            </Button>
+        }
+    />
+
+    const generateCode = (): void => {
+        const newCode = generateRandomNumber()
+        const date = fifteenMinutesFromNow();
+        const password = newCode.toString() + newCode.toString()
+        // todo: check if user already exists -> if yes, just show the existing code, and reset the expiryDate
+        register({
+            email: prolificId + '@prolific.com',
+            password: password,
+        }, {
+            onSuccess(data) {
+                const groupsWithAvailableSlots = getGroupsWithAvailableSlots()
+                const randomGroup = groupsWithAvailableSlots[Math.floor(Math.random() * groupsWithAvailableSlots.length)];
+
+                if (!randomGroup) {
+                    setError(errorResult)
+                }
+
+                create({
+                    resource: EXPERIMENT_PARTICIPATIONS,
+                    values: {
+                        prolificId: prolificId,
+                        code: newCode,
+                        expiryDate: date,
+                        experimentId: experimentId,
+                        groupId: randomGroup.id,
+                        status: ParticipationStatus.receivedCode
+                    }
+                });
+            },
+        })
+        setCode(newCode)
+
+    }
 
     if (!prolificId || !experimentId) {
         return <CustomLayout>Error</CustomLayout>
     }
     return code == 0
         ? (<CustomLayout>
-            <Col span={24}>
+            <Col xs={24} lg={8} xl={6}>
                 <Card title="Welcome">
                     <p>You are about to start the experiment.</p>
                     <Button onClick={() => generateCode()}>Generate App Code</Button>
+                    {error}
                 </Card>
             </Col>
-        </CustomLayout>)
+        </CustomLayout >)
         : (<CustomLayout>
-            <Col span={24}>
+            <Col xs={24} lg={13}>
                 <Card title="1. Get the FeedInsights App">
                     <p>Download the App <b>FeedInsights</b> to start the experiment.</p>
                     <p><img src="/images/download_app.png" /></p>
                 </Card>
             </Col>
-            <Col span={24}>
+            <Col xs={24} lg={13}>
 
                 <Card title="2. Enter code in FeedInsights App">
                     <Title level={2} copyable>{code}</Title>
-                    <Button onClick={() => generateCode()}>Generate App Code</Button>
 
                     {/* <p>{prolificId} {experimentId}</p> */}
                     {/* <Button onClick={() => setCode(generateRandomNumber())}>Generate new code</Button> */}
@@ -155,5 +143,9 @@ const CustomLayout = (props: { children: React.ReactNode }) =>
         }
     />
 
-
+const fifteenMinutesFromNow = () => {
+    const currentDate = new Date();
+    const fifteenMinutesFromNow = new Date(currentDate.getTime() + 15 * 60000);
+    return fifteenMinutesFromNow;
+};
 
