@@ -7,17 +7,29 @@ interface TrialFormProps {
     interventions: IIntervention[]
     stimuliSets: IStimuliSet[]
     groupId: string,
-    nextKey?: string
+    nextKey?: number
+}
+
+interface InterventionOption {
+    value: string
+    label: string
 }
 export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, groupId, nextKey, stimuliSets }) => {
 
+    console.log('next key is ', nextKey)
+
     const [intervention, setIntervention] = useState(formProps.initialValues?.interventionId)
 
-    const interventionOptions = interventions.map((intervention: IIntervention) => {
+    const interventionOptions: InterventionOption[] = interventions.map((intervention: IIntervention) => {
         return { value: intervention.id, label: intervention.name }
     })
-    interventionOptions.unshift({ value: '', label: 'None' })
+    interventionOptions.unshift({ value: 'none', label: 'None' })
 
+
+    if (intervention == 'none') {
+        formProps.form?.setFieldValue('stimuliSetId', '');
+
+    }
 
     return <Form {...formProps} layout="vertical">
         <Form.Item name="groupId" initialValue={groupId} hidden>
@@ -43,6 +55,11 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
         <Form.Item
             label="Intervention"
             name="interventionId"
+            rules={[
+                {
+                    required: true,
+                },
+            ]}
         >
             <Select onChange={setIntervention}
                 options={interventionOptions} />
@@ -52,7 +69,7 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
             name="stimuliSetId"
         >
             <Select
-                disabled={intervention == ''}
+                disabled={intervention == 'none'}
                 options={stimuliSets.map((stimuliSet: IStimuliSet) => {
                     return { value: stimuliSet.id, label: stimuliSet.name }
                 })} />
@@ -62,7 +79,6 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
             name="proportionStimuli"
             rules={[
                 {
-                    required: true,
                     type: 'number',
                     max: 100,
                     min: 0

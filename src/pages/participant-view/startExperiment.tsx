@@ -1,12 +1,13 @@
 import { ThemedLayoutV2 } from "@refinedev/antd";
-import { LogicalFilter, useCreate, useList, useRegister } from "@refinedev/core";
-import { Button, Card, Col, Result, Row } from "antd";
+import { LogicalFilter, useCreate, useList, useOne, useRegister, useUpdate } from "@refinedev/core";
+import { Button, Card, Col, Result, Row, Spin } from "antd";
 import { useParams } from "react-router-dom";
-import { EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION } from "../../utility";
+import { EXPERIMENT_COLLECTION, EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION } from "../../utility";
 import { ReactNode, useState } from "react";
 import Title from "antd/es/typography/Title";
-import { IExperimentParticipation, IGroup } from "../../interfaces";
+import { IExperiment, IExperimentParticipation, IGroup } from "../../interfaces";
 import { ParticipationStatus } from "../../interfaces/enums";
+import { unescape } from "querystring";
 
 type RegisterVariables = {
     email: string;
@@ -17,10 +18,11 @@ export const StartExperiment: React.FC = () => {
     const { prolificId, experimentId } = useParams()
 
     const { mutate: create } = useCreate();
+    const { mutate: update } = useUpdate<IExperimentParticipation>();
     const { mutate: register } = useRegister<RegisterVariables>();
+    const { isError, isLoading } = useOne<IExperiment>({ resource: EXPERIMENT_COLLECTION, id: experimentId, errorNotification: false });
     const { data: groupsData } = useList<IGroup>({ resource: GROUP_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
     const groups = groupsData?.data ?? []
-
     const filters: LogicalFilter[] = groups.map((g) => { return { field: 'groupId', operator: 'eq', value: g.id } })
 
     // todo: exclude participations with status 'dropped out'
@@ -35,6 +37,7 @@ export const StartExperiment: React.FC = () => {
     });
 
     const participations = participationsData?.data ?? []
+    const currentParticipation = participations.find((p) => p.prolificId == prolificId)
 
     const [code, setCode] = useState(0);
     const [error, setError] = useState<ReactNode | null>(null)
@@ -71,15 +74,21 @@ export const StartExperiment: React.FC = () => {
         const newCode = generateRandomNumber()
         const date = fifteenMinutesFromNow();
         const password = newCode.toString() + newCode.toString()
-        // todo: check if user already exists -> if yes, just show the existing code, and reset the expiryDate
+        if (currentParticipation?.id) {
+            update({ resource: EXPERIMENT_PARTICIPATIONS, id: currentParticipation.id, values: { expiryDate: date }, successNotification: false })
+            setCode(currentParticipation.code)
+            return;
+        }
         register({
             email: prolificId + '@prolific.com',
             password: password,
         }, {
             onSuccess(data) {
+
                 const groupsWithAvailableSlots = getGroupsWithAvailableSlots()
                 const randomGroup = groupsWithAvailableSlots[Math.floor(Math.random() * groupsWithAvailableSlots.length)];
 
+                // todo: this error handling does not work anymore
                 if (!randomGroup) {
                     setError(errorResult)
                 }
@@ -93,7 +102,8 @@ export const StartExperiment: React.FC = () => {
                         experimentId: experimentId,
                         groupId: randomGroup.id,
                         status: ParticipationStatus.receivedCode
-                    }
+                    },
+                    successNotification: false
                 });
             },
         })
@@ -102,17 +112,21 @@ export const StartExperiment: React.FC = () => {
     }
 
     if (!prolificId || !experimentId) {
-        return <CustomLayout>Error</CustomLayout>
+        return <CustomLayout>You got here via an invalid link. Please contact the experiment conductor.</CustomLayout>
     }
     return code == 0
         ? (<CustomLayout>
-            <Col xs={24} lg={8} xl={6}>
-                <Card title="Welcome">
-                    <p>You are about to start the experiment.</p>
-                    <Button onClick={() => generateCode()}>Generate App Code</Button>
-                    {error}
-                </Card>
-            </Col>
+            {isLoading ? <Spin /> :
+                <Col xs={24} lg={8} xl={6}>
+                    <Card title="Welcome">
+                        {!isError ? <>
+                            <p>You are about to start the experiment.</p>
+                            <Button onClick={() => generateCode()}>Generate App Code</Button>
+                            {error}
+                        </> : <p>This experiment could not be found. Please contact the experiment conductor.</p>}
+                    </Card>
+                </Col>
+            }
         </CustomLayout >)
         : (<CustomLayout>
             <Col xs={24} lg={13}>
@@ -145,7 +159,7 @@ const CustomLayout = (props: { children: React.ReactNode }) =>
 
 const fifteenMinutesFromNow = () => {
     const currentDate = new Date();
-    const fifteenMinutesFromNow = new Date(currentDate.getTime() + 15 * 60000);
+    const fifteenMinutesFromNow = new Date(currentDate.getTime() + 60 * 60000);
     return fifteenMinutesFromNow;
 };
 

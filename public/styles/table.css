@@ -1,0 +1,17 @@
+@keyframes fade-in {
+    0% {
+        background-color: rgba(255, 255, 0, 0);
+    }
+
+    50% {
+        background-color: rgba(255, 255, 0, 1);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 0, 0);
+    }
+}
+
+.highlighted {
+    animation: fade-in 2s ease both infinite;
+}

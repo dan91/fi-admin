@@ -1,14 +1,10 @@
-import { Avatar, Button, Card, Col, Drawer, Form, FormProps, Input, List, Row, Select, Space, Table, Tag, Typography, Upload } from "antd"
-import { Dispatch, FormEventHandler, SetStateAction, useState } from "react";
+import { Avatar, Card, Col, Drawer, Image, List, Row, Space, Typography } from "antd"
 import { IFile, IStimuliSet, IStimulus } from "../../../../interfaces";
-import { APPWRITE_URL, EXPERIMENT_PARTICIPATIONS, STIMULI_SET_COLLECTION, STIMULUS_COLLECTION, STIMULUS_IMAGE_BUCKET, USER_IMAGE_BUCKET, normalizeFile, storage } from "../../../../utility";
-import { Create, Edit, EditButton, ImageField, TagField, getValueFromEvent, useDrawerForm, useSimpleList } from "@refinedev/antd";
-import { HttpError, useGetIdentity, useList, useMany } from "@refinedev/core";
-import TextArea from "antd/lib/input/TextArea";
-import Title from "antd/lib/typography/Title";
-import Icon, { CommentOutlined, EditOutlined, FileImageOutlined, LikeOutlined, PlusOutlined, ShareAltOutlined, UploadOutlined } from "@ant-design/icons";
+import { STIMULI_SET_COLLECTION, STIMULUS_COLLECTION } from "../../../../utility";
+import { Create, Edit, EditButton, TagField, useDrawerForm, useSimpleList } from "@refinedev/antd";
+import { HttpError, useGetIdentity, useList } from "@refinedev/core";
+import { CommentOutlined, FileImageOutlined, LikeOutlined, PlusOutlined, ShareAltOutlined } from "@ant-design/icons";
 import React from "react";
-import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 import { StimulusForm } from "./stimulus_form";
 import { Permission, Role } from "@refinedev/appwrite";
 import { EmptyList } from "../../../../utility/empty";
@@ -111,7 +107,7 @@ export const StimulusList: React.FC<StimulusFormProps> = ({ experimentId }) => {
                 <Row gutter={[20, 20]} style={{ padding: '10px 0' }}>
                     <Col>
                         {stimulusImage.length == 0 ? <FileImageOutlined style={{ fontSize: 100 }} /> :
-                            <ImageField height={100} value={stimulusImage[0].url} />}
+                            <Image width="100%" src={stimulusImage[0].url} />}
                     </Col>
                 </Row>
                 <Row gutter={[20, 20]} style={{ padding: '10px 0' }}>

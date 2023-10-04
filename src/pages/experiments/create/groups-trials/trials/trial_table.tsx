@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // import './index.css';
-import { MenuOutlined, PlusOutlined } from '@ant-design/icons';
+import { CopyOutlined, LoadingOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -14,15 +14,15 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Button, Drawer, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CloneButton, Create, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
+import { Create, Edit, EditButton, TextField, useDrawerForm } from '@refinedev/antd';
 import { IIntervention, IStimuliSet, ITrial } from '../../../../../interfaces';
 import { INTERVENTION_COLLECTION, STIMULI_SET_COLLECTION, TRIAL_COLLECTION } from '../../../../../utility';
 import { HttpError, useCreate, useGetIdentity, useList, useUpdate } from '@refinedev/core';
-import Title from 'antd/lib/typography/Title';
 import { TrialForm } from './trial_form';
 import { Permission, Role } from '@refinedev/appwrite';
 import { EmptyList } from '../../../../../utility/empty';
 import { PageTitle } from '../../../../../utility/pageTitle';
+import '../../../../../../public/styles/table.css'
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
     'data-row-key': string;
@@ -73,18 +73,23 @@ interface TrialTableProps {
     groupId: string
 }
 
+interface CloningProps {
+    toCloneId?: string
+    clonedId?: string
+}
+
 export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId }) => {
     const { data: trials } = useList<ITrial>({ resource: TRIAL_COLLECTION, sorters: [{ field: 'key', order: 'asc' }], filters: [{ field: 'groupId', operator: 'eq', value: groupId }] });
     const { data: interventions } = useList<IIntervention>({ resource: INTERVENTION_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
     const { data: stimuliSets } = useList<IStimuliSet>({ resource: STIMULI_SET_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experimentId }] });
     const { mutate } = useUpdate();
     const { mutate: clone } = useCreate<ITrial>()
+    const [cloning, setCloning] = useState<CloningProps>({})
 
     const keys = trials?.data.map((t) => t.key ? parseInt(t.key) : 0) as number[]
     let highestKey = 0
     if (keys) {
         highestKey = Math.max(...keys)
-        console.log(keys, highestKey)
     }
 
     const { data: identity } = useGetIdentity<{
@@ -111,7 +116,6 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     const {
         formProps: trialEditFormProps,
         deleteButtonProps,
-        queryResult,
         drawerProps: drawerEditProps,
         saveButtonProps: trialEditSaveButtonProps,
         show: showEdit } = useDrawerForm<
@@ -171,20 +175,20 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
             dataIndex: 'id',
             render: (value, record: ITrial) =>
                 <Space><EditButton
-                    hideText
                     size="small"
                     recordItemId={value}
                     onClick={() => showEdit(value)} />
-                    <CloneButton onClick={() => cloneItem(record)} size='small' /></Space>,
+                    <Button icon={cloning.toCloneId == record.id ? <LoadingOutlined /> : <CopyOutlined />} onClick={() => cloneItem(record)} size='small'>Clone</Button></Space>,
             align: "right"
         },
     ];
 
     const cloneItem = (trial: ITrial) => {
-        const { duration, groupId, interventionId, proportionStimuli, stimuliSetId } = trial;
+        const { id, duration, groupId, interventionId, proportionStimuli, stimuliSetId } = trial;
+        setCloning({ toCloneId: id })
         const key = (highestKey + 1).toString()
         const clonedTrial = { duration, groupId, key, interventionId, proportionStimuli, stimuliSetId }
-        clone({ resource: TRIAL_COLLECTION, values: clonedTrial })
+        clone({ resource: TRIAL_COLLECTION, values: clonedTrial }, { onSuccess: (data) => { setCloning({ clonedId: data.data.id }); setTimeout(() => setCloning({ clonedId: undefined }), 5000) } })
     }
 
     const [dataSource, setDataSource] = useState<ITrial[]>([]);
@@ -195,21 +199,22 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     }, [trials]);
 
 
-    const updateIndexes = async (trials: ITrial[]) => {
+    const updateIndexes = async (trialsTable: ITrial[]) => {
         await new Promise((resolve) => {
-            for (let i = 0; i < trials.length; i++) {
-                const trial = trials[i];
-                const index = trials?.findIndex((el) =>
+            for (let i = 0; i < trialsTable.length; i++) {
+                const trial = trialsTable[i];
+                const index = trialsTable?.findIndex((el) =>
                     el.key.toString() === trial.key.toString()) + 1;
 
                 setTimeout(resolve, 40);
+                console.log(index)
 
                 mutate({
                     resource: TRIAL_COLLECTION,
                     values: { key: index.toString() },
                     id: trial.id,
                     successNotification: () => {
-                        return (i === trials.length - 1) ? {
+                        return (i === trialsTable.length - 1) ? {
                             message: 'Order updated',
                             description: '',
                             type: 'success'
@@ -246,6 +251,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
 
                     {dataSource.length == 0 ? <EmptyList text="trials" callback={show} /> :
                         <Table
+                            rowClassName={(record) => cloning.clonedId == record.id ? 'highlighted' : ''}
                             components={{
                                 body: {
                                     row: Row,
@@ -261,7 +267,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
             </DndContext>
             <Drawer {...drawerProps}>
                 <Create breadcrumb={false} title="Add Trial" goBack={false} saveButtonProps={trialSaveButtonProps}>
-                    <TrialForm formProps={trialCreateFormProps} interventions={interventions?.data ?? []} stimuliSets={stimuliSets?.data ?? []} groupId={groupId} nextKey={(dataSource.length > 0 ? dataSource[dataSource.length - 1].key + 1 : 1).toString()} />
+                    <TrialForm formProps={trialCreateFormProps} interventions={interventions?.data ?? []} stimuliSets={stimuliSets?.data ?? []} groupId={groupId} nextKey={(trials?.data && trials.data.length > 0 ? Math.max(...trials.data.map((t) => parseInt(t.key))) + 1 : 1)} />
                 </Create>
             </Drawer>
             <Drawer {...drawerEditProps}>
