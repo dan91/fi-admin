@@ -36,7 +36,7 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
             <Input type="hidden" />
         </Form.Item>
         {nextKey &&
-            <Form.Item name="key" initialValue={nextKey} hidden>
+            <Form.Item name="key" initialValue={nextKey.toString()} hidden>
                 <Input type="hidden" />
             </Form.Item>}
         <Form.Item

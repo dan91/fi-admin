@@ -72,11 +72,22 @@ export interface IStimuliSet {
 
 export interface IExperimentParticipation {
     id?: string;
-    prolificId: string;
+    userId: string;
     expiryDate: Date;
     status: ParticipationStatus;
     code: number;
     experimentId: string;
     groupId: string;
+}
+
+export interface IInteraction {
+    id: string;
+    $createdAt: Date
+    userId: string;
+    stimuliId: string;
+    type: 'like' | 'comment' | 'share'
+    subType: 'shareAsMessage' | 'shareInStory' | 'shareInFeed' | 'shareWithButtons'
+    action: 'confirm' | 'reject'
+    trialId: string
 }
 

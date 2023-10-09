@@ -168,7 +168,7 @@ function App() {
                 element={<StartExperiment />}
               >
                 <Route
-                  path=":prolificId/:experimentId"
+                  path=":experimentId/:userId"
                   element={<StartExperiment />}
                 />
               </Route>

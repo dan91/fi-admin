@@ -7,7 +7,6 @@ import { ReactNode, useState } from "react";
 import Title from "antd/es/typography/Title";
 import { IExperiment, IExperimentParticipation, IGroup } from "../../interfaces";
 import { ParticipationStatus } from "../../interfaces/enums";
-import { unescape } from "querystring";
 
 type RegisterVariables = {
     email: string;
@@ -15,7 +14,7 @@ type RegisterVariables = {
 };
 
 export const StartExperiment: React.FC = () => {
-    const { prolificId, experimentId } = useParams()
+    const { experimentId, userId } = useParams()
 
     const { mutate: create } = useCreate();
     const { mutate: update } = useUpdate<IExperimentParticipation>();
@@ -37,7 +36,7 @@ export const StartExperiment: React.FC = () => {
     });
 
     const participations = participationsData?.data ?? []
-    const currentParticipation = participations.find((p) => p.prolificId == prolificId)
+    const currentParticipation = participations.find((p) => p.userId == userId)
 
     const [code, setCode] = useState(0);
     const [error, setError] = useState<ReactNode | null>(null)
@@ -80,7 +79,7 @@ export const StartExperiment: React.FC = () => {
             return;
         }
         register({
-            email: prolificId + '@prolific.com',
+            email: userId + '@prolific.com',
             password: password,
         }, {
             onSuccess(data) {
@@ -96,7 +95,7 @@ export const StartExperiment: React.FC = () => {
                 create({
                     resource: EXPERIMENT_PARTICIPATIONS,
                     values: {
-                        prolificId: prolificId,
+                        userId: userId,
                         code: newCode,
                         expiryDate: date,
                         experimentId: experimentId,
@@ -111,7 +110,7 @@ export const StartExperiment: React.FC = () => {
 
     }
 
-    if (!prolificId || !experimentId) {
+    if (!userId || !experimentId) {
         return <CustomLayout>You got here via an invalid link. Please contact the experiment conductor.</CustomLayout>
     }
     return code == 0
@@ -140,7 +139,7 @@ export const StartExperiment: React.FC = () => {
                 <Card title="2. Enter code in FeedInsights App">
                     <Title level={2} copyable>{code}</Title>
 
-                    {/* <p>{prolificId} {experimentId}</p> */}
+                    {/* <p>{userId} {experimentId}</p> */}
                     {/* <Button onClick={() => setCode(generateRandomNumber())}>Generate new code</Button> */}
                 </Card>
             </Col>
