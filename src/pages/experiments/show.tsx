@@ -3,7 +3,7 @@ import { PageTitle } from "../../utility/pageTitle";
 import { ExportButton, Show } from "@refinedev/antd";
 import { Col, Typography, Progress, Row, Spin, Button, Result } from "antd";
 import Paragraph from "antd/es/typography/Paragraph";
-import { ExportOutlined, EyeOutlined, InfoCircleOutlined, PauseOutlined, PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
+import { EditOutlined, ExportOutlined, EyeOutlined, InfoCircleOutlined, PauseOutlined, PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import Title from "antd/lib/typography/Title";
 import { Checkbox } from "antd/lib";
 import { ReactNode } from "react";
@@ -113,9 +113,9 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
 
         {experiment.status == ExperimentStatus.ready && <Result
           status="404"
-          title="Experiment not published"
+          title="Experiment not yet published..."
           subTitle="How do you want to proceed?"
-          extra={<><Button type="primary" onClick={() => go({ to: { action: "edit", resource: EXPERIMENT_COLLECTION, id: experiment.id } })}>Edit</Button><Button onClick={() => setStatus(experiment.id, ExperimentStatus.published)}>Publish</Button></>}
+          extra={<><Button type="primary" icon={<EditOutlined />} onClick={() => go({ to: { action: "edit", resource: EXPERIMENT_COLLECTION, id: experiment.id } })}>Edit</Button><Button icon={<EyeOutlined />} onClick={() => setStatus(experiment.id, ExperimentStatus.published)}>Publish</Button></>}
         />
         }
       </Show >

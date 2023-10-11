@@ -3,7 +3,6 @@ import {
     IResourceComponentsProps,
     HttpError,
     useUpdate,
-    useNavigation,
     useGo,
 } from "@refinedev/core";
 import { TagField, EditButton, useTable, List } from "@refinedev/antd";
@@ -20,7 +19,6 @@ import { ExperimentStatus } from "./show";
 export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
     const { tableProps } = useTable<IExperiment, HttpError>({ resource: EXPERIMENT_COLLECTION });
     const { mutate } = useUpdate<IExperiment>()
-    const { show, edit } = useNavigation()
 
     const go = useGo()
 
