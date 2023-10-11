@@ -147,7 +147,7 @@ function App() {
                       title={<AppIcon />}
                       formProps={{
                         initialValues: {
-                          email: "demo@refine.dev",
+                          email: "demo@feedinsights.com",
                           password: "demodemo",
                         },
                       }}
