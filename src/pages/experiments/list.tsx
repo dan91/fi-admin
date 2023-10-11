@@ -6,7 +6,7 @@ import {
     useGo,
 } from "@refinedev/core";
 import { TagField, EditButton, useTable, List } from "@refinedev/antd";
-import { CheckCircleOutlined, ClockCircleOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PauseCircleOutlined, PauseOutlined, PlayCircleOutlined, SyncOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, ClockCircleOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PauseCircleOutlined, PauseOutlined, PlayCircleOutlined, StopOutlined, SyncOutlined } from "@ant-design/icons";
 import { Table, Button, Space } from "antd";
 
 
@@ -79,13 +79,15 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
 
     const buttonListCompleted = (value: string) => []
 
-    const buttonListPaused = (value: string) => [<Button icon={<EyeOutlined />}
+    const buttonListPaused = (value: string) => [<Button icon={<PlayCircleOutlined />}
         onClick={() => { setStatus(value, ExperimentStatus.published) }}>
-        Resume</Button>]
+        Resume</Button>, <Button icon={<StopOutlined />}
+            onClick={() => { setStatus(value, ExperimentStatus.ready) }}>
+        Stop</Button>]
 
-    const buttonListPublished = (value: string) => [<Button icon={<EyeInvisibleOutlined />}
-        onClick={() => { setStatus(value, ExperimentStatus.ready) }}>
-        Unpublish</Button>]
+    const buttonListPublished = (value: string) => [<Button icon={<PauseOutlined />}
+        onClick={() => { setStatus(value, ExperimentStatus.paused) }}>
+        Pause</Button>]
 
     return (
         <List>

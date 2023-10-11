@@ -19,24 +19,16 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
   const { data, isLoading } = queryResult;
   const experiment: IExperiment = data?.data as IExperiment;
 
-
-
-  const { mutate } = useUpdate<IExperiment>()
-
   const { mutate: mutateStatus } = useUpdate<IExperiment>();
 
 
-  const setStatus = (id: string, status: string) => {
+  const setStatus = (status: string) => {
     mutateStatus({
       resource: EXPERIMENT_COLLECTION,
       values: { status: status },
-      id: id,
+      id: experiment?.id,
       successNotification: false
     })
-  }
-
-  const updateExperimentStatus = (newStatus: string) => {
-    mutate({ resource: EXPERIMENT_COLLECTION, values: { status: newStatus }, id: experiment.id })
   }
 
   const { data: participationsData } = useList<IExperimentParticipation>({ resource: EXPERIMENT_PARTICIPATIONS, filters: [{ field: 'experimentId', operator: 'eq', value: experiment?.id }] })
@@ -44,7 +36,6 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
   const go = useGo()
 
   const { data: groupsData } = useList<IGroup>({ resource: GROUP_COLLECTION, filters: [{ field: 'experimentId', operator: 'eq', value: experiment?.id }] })
-
 
   const participations = participationsData?.data ?? []
   const groups = groupsData?.data ?? []
@@ -67,8 +58,6 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
   });
   const availableSpots = groups.length == 0 ? 0 : groups.map((g: IGroup) => g.numParticipants).reduce((a, b) => a + b)
 
-
-
   const selectButtonList = (status: ExperimentStatus): ReactNode[] => {
     switch (status) {
       case ExperimentStatus.published:
@@ -81,9 +70,9 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
     }
   }
 
-  const buttonListPublished = [<Button onClick={() => updateExperimentStatus(ExperimentStatus.paused)}><PauseOutlined /> Pause</Button>]
-  const buttonListPaused = [<Button onClick={() => updateExperimentStatus(ExperimentStatus.published)}><PlayCircleOutlined /> Resume</Button>, <Button onClick={() => updateExperimentStatus(ExperimentStatus.completed)}><StopOutlined /> Stop</Button>]
-  const buttonListReady = [<Button onClick={() => updateExperimentStatus(ExperimentStatus.published)}><EyeOutlined /> Publish</Button>]
+  const buttonListPublished = [<Button onClick={() => setStatus(ExperimentStatus.paused)}><PauseOutlined />Pause</Button>]
+  const buttonListPaused = [<Button onClick={() => setStatus(ExperimentStatus.published)}><PlayCircleOutlined />Resume</Button>, <Button onClick={() => setStatus(ExperimentStatus.completed)}><StopOutlined />Stop</Button>]
+  const buttonListReady = [<Button onClick={() => setStatus(ExperimentStatus.published)}><EyeOutlined />Publish</Button>]
 
   const path = "/start-experiment/" + experiment?.id + "/"
   const demoParticipantId = 'demo'
@@ -115,7 +104,7 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
           status="404"
           title="Experiment not yet published..."
           subTitle="How do you want to proceed?"
-          extra={<><Button type="primary" icon={<EditOutlined />} onClick={() => go({ to: { action: "edit", resource: EXPERIMENT_COLLECTION, id: experiment.id } })}>Edit</Button><Button icon={<EyeOutlined />} onClick={() => setStatus(experiment.id, ExperimentStatus.published)}>Publish</Button></>}
+          extra={<><Button type="primary" icon={<EditOutlined />} onClick={() => go({ to: { action: "edit", resource: EXPERIMENT_COLLECTION, id: experiment.id } })}>Edit</Button><Button icon={<EyeOutlined />} onClick={() => setStatus(ExperimentStatus.published)}>Publish</Button></>}
         />
         }
       </Show >
