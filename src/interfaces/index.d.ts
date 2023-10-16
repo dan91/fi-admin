@@ -52,6 +52,7 @@ export interface IGroup {
     id: string,
     name: string,
     numParticipants: number
+    randomizeTrialOrder: boolean
 }
 
 export interface ITrial {

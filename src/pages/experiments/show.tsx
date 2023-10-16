@@ -1,17 +1,14 @@
 import { IResourceComponentsProps, LogicalFilter, useExport, useGo, useList, useShow, useUpdate } from "@refinedev/core";
 import { PageTitle } from "../../utility/pageTitle";
-import { ExportButton, Show } from "@refinedev/antd";
+import { Show } from "@refinedev/antd";
 import { Col, Typography, Progress, Row, Spin, Button, Result } from "antd";
 import Paragraph from "antd/es/typography/Paragraph";
 import { EditOutlined, ExportOutlined, EyeOutlined, InfoCircleOutlined, PauseOutlined, PlayCircleOutlined, StopOutlined } from "@ant-design/icons";
 import Title from "antd/lib/typography/Title";
-import { Checkbox } from "antd/lib";
 import { ReactNode } from "react";
-import { IExperiment, IExperimentParticipation, IGroup, IInteraction, ITrial } from "../../interfaces/index"
-import { EXPERIMENT_COLLECTION, EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION, INTERACTION_COLLECTION, TRIAL_COLLECTION } from "../../utility";
+import { IExperiment, IExperimentParticipation, IGroup, IInteraction } from "../../interfaces/index"
+import { EXPERIMENT_COLLECTION, EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION, INTERACTION_COLLECTION } from "../../utility";
 import { Interactions } from "./interactions";
-import { EmptyList } from "../../utility/empty";
-import exp from "constants";
 const { Text } = Typography
 
 export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {

@@ -1,6 +1,6 @@
 
 
-import { Form, Input, InputNumber } from "antd"
+import { Checkbox, Form, Input, InputNumber } from "antd"
 import { FormProps } from "antd/lib"
 interface GroupFormProps {
     formProps: FormProps
@@ -33,6 +33,14 @@ export const GroupForm: React.FC<GroupFormProps> = ({ formProps, experimentId })
             ]}
         >
             <InputNumber />
+        </Form.Item>
+        <Form.Item
+            valuePropName="checked"
+            label="Trial Order"
+            name="randomizeTrialOrder"
+            initialValue={false}
+        >
+            <Checkbox>Randomize trial order for each participant</Checkbox>
         </Form.Item>
     </Form>
 }

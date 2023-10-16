@@ -1,12 +1,9 @@
-import { Alert, Button, Col, Collapse, CollapseProps, Drawer, Form, FormProps, Input, InputNumber, List, Row, Spin, Typography } from "antd"
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import { IGroup, ITrial } from "../../../../interfaces";
-import { GROUP_COLLECTION, TRIAL_COLLECTION } from "../../../../utility";
+import { Button, Collapse, CollapseProps, Drawer, Spin, Typography } from "antd"
+import { IGroup } from "../../../../interfaces";
+import { GROUP_COLLECTION } from "../../../../utility";
 import { Create, Edit, EditButton, useDrawerForm } from "@refinedev/antd";
-import { HttpError, useGetIdentity, useList, useTable } from "@refinedev/core";
-import TextArea from "antd/lib/input/TextArea";
-import Title from "antd/lib/typography/Title";
-import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import { HttpError, useGetIdentity, useList } from "@refinedev/core";
+import { EditOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { GroupForm } from "./group_form";
 import { Permission, Role } from "@refinedev/appwrite";
 import { EmptyList } from "../../../../utility/empty";
@@ -53,8 +50,8 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = ({ experimentId })
     const collapseItems: CollapseProps['items'] = groups?.data.map((group: IGroup) => ({
         key: group.id,
         label: `${group.name} | ${group.numParticipants} Participants`,
-        children: <TrialTable experimentId={experimentId} groupId={group.id} />,
-        extra: <EditButton size="small" type="link" onClick={(e) => { e.stopPropagation(); showEdit(group.id) }} />
+        children: <TrialTable experimentId={experimentId} groupId={group.id} key={group.id} />,
+        extra: <Button icon={<EditOutlined />} size="small" type="link" onClick={() => { showEdit(group.id) }}>Edit</Button>
     }));
 
     const confirmTitle = deleteButtonProps.confirmTitle = 'Are you sure? This will also delete ALL TRIALS in this group.'
