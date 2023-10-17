@@ -133,6 +133,10 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     const columns: ColumnsType<ITrial> = [
         {
             key: 'sort',
+            dataIndex: 'key',
+            render(value) {
+                return value
+            }
         },
         {
             title: 'Duration',
@@ -204,10 +208,10 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
             for (let i = 0; i < trialsTable.length; i++) {
                 const trial = trialsTable[i];
                 const index = trialsTable?.findIndex((el) =>
-                    el.key.toString() === trial.key.toString()) + 1;
+                    el.id === trial.id
+                ) + 1
 
                 setTimeout(resolve, 40);
-                console.log(index)
 
                 mutate({
                     resource: TRIAL_COLLECTION,
@@ -247,7 +251,6 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
                     strategy={verticalListSortingStrategy}
                 >
                     <PageTitle title='Trials' titleLevel={5} buttonAction={() => { show(); }} buttonIcon={<PlusOutlined />} buttonText='Add Trial' buttonSize='small' />
-
 
                     {dataSource.length == 0 ? <EmptyList text="trials" callback={show} /> :
                         <Table

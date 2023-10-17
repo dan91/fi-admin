@@ -15,9 +15,6 @@ interface InterventionOption {
     label: string
 }
 export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, groupId, nextKey, stimuliSets }) => {
-
-    console.log('next key is ', nextKey)
-
     const [intervention, setIntervention] = useState(formProps.initialValues?.interventionId)
 
     const interventionOptions: InterventionOption[] = interventions.map((intervention: IIntervention) => {
@@ -25,10 +22,8 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
     })
     interventionOptions.unshift({ value: 'none', label: 'None' })
 
-
     if (intervention == 'none') {
         formProps.form?.setFieldValue('stimuliSetId', '');
-
     }
 
     return <Form {...formProps} layout="vertical">
