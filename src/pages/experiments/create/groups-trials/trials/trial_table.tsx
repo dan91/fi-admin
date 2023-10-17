@@ -87,6 +87,8 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     const [cloning, setCloning] = useState<CloningProps>({})
 
     const keys = trials?.data.map((t) => t.key ? parseInt(t.key) : 0) as number[]
+    const hasDuplicates = keys ? keys.length !== new Set(keys).size : false;
+
     let highestKey = 0
     if (keys) {
         highestKey = Math.max(...keys)
@@ -171,7 +173,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
             dataIndex: 'proportionStimuli',
             key: 'proportionStimuli',
             render(value) {
-                return value + '%'
+                return value ? value + '%' : ''
             },
         },
         {
@@ -198,6 +200,17 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
     const [dataSource, setDataSource] = useState<ITrial[]>([]);
     useEffect(() => {
         if (trials?.data) {
+            if (hasDuplicates) {
+                console.log('has duplicates, reorder', trials.data)
+                let currentKey = 1;
+                for (let i = 0; i < trials?.data.length; i++) {
+                    if (parseInt(trials?.data[i].key) !== currentKey) {
+                        trials.data[i].key = currentKey.toString();
+                    }
+                    currentKey++;
+                }
+            }
+            console.log(trials.data)
             setDataSource(trials.data);
         }
     }, [trials]);

@@ -1,5 +1,5 @@
-import { Checkbox, Form, Input, InputNumber, Select, Space, Switch } from "antd"
-import { IIntervention, IStimuliSet, ITrial } from "../../../../../interfaces"
+import { Form, Input, InputNumber, Select } from "antd"
+import { IIntervention, IStimuliSet } from "../../../../../interfaces"
 import { FormProps } from "antd/lib"
 import { useState } from "react"
 interface TrialFormProps {
@@ -24,7 +24,10 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
 
     if (intervention == 'none') {
         formProps.form?.setFieldValue('stimuliSetId', '');
+        formProps.form?.setFieldValue('proportionStimuli', null);
     }
+
+    console.log('next key is', nextKey?.toString())
 
     return <Form {...formProps} layout="vertical">
         <Form.Item name="groupId" initialValue={groupId} hidden>
@@ -76,11 +79,13 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
                 {
                     type: 'number',
                     max: 100,
-                    min: 0
+                    min: 0,
+                    required: intervention != 'none'
                 },
             ]}
         >
-            <InputNumber suffix='%' />
+            <InputNumber disabled={intervention == 'none'}
+                suffix='%' />
         </Form.Item>
     </Form>
 }
