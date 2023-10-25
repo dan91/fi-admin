@@ -51,7 +51,7 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = ({ experimentId })
         key: group.id,
         label: `${group.name} | ${group.numParticipants} Participants`,
         children: <TrialTable experimentId={experimentId} groupId={group.id} key={group.id} />,
-        extra: <Button icon={<EditOutlined />} size="small" type="link" onClick={() => { showEdit(group.id) }}>Edit</Button>
+        extra: <Button icon={<EditOutlined />} size="small" type="link" onClick={(e) => { e.preventDefault(); showEdit(group.id) }}>Edit</Button>
     }));
 
     const confirmTitle = deleteButtonProps.confirmTitle = 'Are you sure? This will also delete ALL TRIALS in this group.'
@@ -60,7 +60,7 @@ export const GroupTrialForm: React.FC<GroupTrialsFormProps> = ({ experimentId })
 
 
     return <>
-        <PageTitle title='Groups' buttonIcon={<UsergroupAddOutlined />} buttonText=" Add Group" buttonAction={() => show()} />
+        <PageTitle title='Groups' buttonIcon={<UsergroupAddOutlined />} buttonText="Add Group" buttonAction={() => show()} />
         {isLoading ? <Spin /> :
             groups?.data && groups.data.length > 0 ? <Collapse items={collapseItems} /> : <EmptyList text="groups" callback={show} />
         }

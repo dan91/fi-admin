@@ -1,11 +1,9 @@
 import { HttpError, LogicalFilter, useList, } from "@refinedev/core";
-import { List, Table, Tag, Typography } from "antd";
+import { List, Table, Tag } from "antd";
 import { IExperimentParticipation, IInteraction } from "../../interfaces/index"
 import { useTable } from "@refinedev/antd";
 import { EXPERIMENT_PARTICIPATIONS, INTERACTION_COLLECTION } from "../../utility";
 import { CommentOutlined, LikeOutlined, ShareAltOutlined } from "@ant-design/icons";
-import { ReactElement } from "react";
-const { Text } = Typography
 
 interface InteractionsProps {
   experimentId: string
@@ -28,7 +26,6 @@ export const Interactions: React.FC<InteractionsProps> = ({ experimentId }) => {
   });
 
   const typeIcon = (value: string) => {
-    let icon;
     switch (value) {
       case 'comment':
         return <CommentOutlined />;

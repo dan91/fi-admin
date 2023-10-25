@@ -47,8 +47,6 @@ function App() {
     getLocale: () => i18n.language,
   };
 
-  const icon = <AppIcon />
-
   return (
     <BrowserRouter>
       <RefineKbarProvider>
@@ -93,8 +91,8 @@ function App() {
                         <ThemedTitleV2
                           // collapsed is a boolean value that indicates whether the <Sidebar> is collapsed or not
                           collapsed={collapsed}
-                          icon={collapsed ? <AppIcon /> : <AppIcon />}
-                          text=""
+                          icon={<AppIcon />}
+                          text="FeedInsights"
                         />
                       )}
                       Header={() => <Header sticky />}

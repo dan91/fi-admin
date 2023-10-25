@@ -9,6 +9,7 @@ import { ReactNode } from "react";
 import { IExperiment, IExperimentParticipation, IGroup, IInteraction } from "../../interfaces/index"
 import { EXPERIMENT_COLLECTION, EXPERIMENT_PARTICIPATIONS, GROUP_COLLECTION, INTERACTION_COLLECTION } from "../../utility";
 import { Interactions } from "./interactions";
+import { useGetTrialsByExperimentId } from "../../utility/api";
 const { Text } = Typography
 
 export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
@@ -61,15 +62,12 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
         return buttonListPublished
       case ExperimentStatus.paused:
         return buttonListPaused
-      case ExperimentStatus.ready:
-        return buttonListReady
       default: return []
     }
   }
 
   const buttonListPublished = [<Button onClick={() => setStatus(ExperimentStatus.paused)}><PauseOutlined />Pause</Button>]
   const buttonListPaused = [<Button onClick={() => setStatus(ExperimentStatus.published)}><PlayCircleOutlined />Resume</Button>, <Button onClick={() => setStatus(ExperimentStatus.completed)}><StopOutlined />Stop</Button>]
-  const buttonListReady = [<Button onClick={() => setStatus(ExperimentStatus.published)}><EyeOutlined />Publish</Button>]
 
   const path = "/start-experiment/" + experiment?.id + "/"
   const demoParticipantId = 'demo'
@@ -79,38 +77,28 @@ export const ExperimentShow: React.FC<IResourceComponentsProps> = () => {
   return isLoading ? <Spin /> :
     (
       <Show title={experiment.name} headerButtons={<><Text>created on {new Date(experiment.$createdAt).toLocaleDateString('en')}</Text>{selectButtonList(experiment.status)}</>}>
-        {(experiment.status == ExperimentStatus.completed ||
-          experiment.status == ExperimentStatus.published ||
-          experiment.status == ExperimentStatus.paused) && <><PageTitle title="Progress" />
-            <Row gutter={24}>
-              <Col>
-                <Progress size={[300, 20]} percent={Math.round((participations.length / availableSpots) * 100)} style={{ maxWidth: '400px' }} status={experiment.status == ExperimentStatus.published ? "active" : "normal"} strokeColor={{ from: '#108ee9', to: '#87d068' }} />
-                <Paragraph>{participations.length}/{availableSpots} Participants completed the experiment.</Paragraph>
-              </Col>
-            </Row></>}
+        <PageTitle title="Progress" />
+        <Row gutter={24}>
+          <Col>
+            <Progress size={[300, 20]} percent={Math.round((participations.length / availableSpots) * 100)} style={{ maxWidth: '400px' }} status={experiment.status == ExperimentStatus.published ? "active" : "normal"} strokeColor={{ from: '#108ee9', to: '#87d068' }} />
+            <Paragraph>{participations.length}/{availableSpots} Participants completed the experiment.</Paragraph>
+          </Col>
+        </Row>
 
         {experiment.status == ExperimentStatus.published && <><PageTitle title="Link to Experiment" />
           <Title level={5} copyable code>{linkToExperiment}</Title>
           <Paragraph style={{ paddingTop: '12px' }}><InfoCircleOutlined /> Replace [PARTICIPANT_ID] with a unique identifier for each participant. <Button type="link" onClick={() => { go({ to: path + demoParticipantId }) }}>Open Demo</Button></Paragraph>
         </>}
 
-        {(experiment.status != ExperimentStatus.draft && experiment.status != ExperimentStatus.ready) && <><PageTitle title="Interactions" buttonAction={triggerExport} buttonText="Export" buttonIcon={<ExportOutlined />} />
-          <Interactions experimentId={experiment.id} /></>}
+        <PageTitle title="Interactions" buttonAction={triggerExport} buttonText="Export" buttonIcon={<ExportOutlined />} />
+        <Interactions experimentId={experiment.id} />
 
-        {experiment.status == ExperimentStatus.ready && <Result
-          status="404"
-          title="Experiment not yet published..."
-          subTitle="How do you want to proceed?"
-          extra={<><Button type="primary" icon={<EditOutlined />} onClick={() => go({ to: { action: "edit", resource: EXPERIMENT_COLLECTION, id: experiment.id } })}>Edit</Button><Button icon={<EyeOutlined />} onClick={() => setStatus(ExperimentStatus.published)}>Publish</Button></>}
-        />
-        }
       </Show >
     )
 };
 
 export enum ExperimentStatus {
   'draft' = 'draft',
-  'ready' = 'ready',
   'published' = 'published',
   'paused' = 'paused',
   'completed' = 'completed'

@@ -155,7 +155,7 @@ export const TrialTable: React.FC<TrialTableProps> = ({ experimentId, groupId })
             render: (value: string) => {
                 return <TextField key={value} value={interventions?.data.find(
                     (intervention) => intervention.id == value
-                )?.name ?? 'None'} />;
+                )?.name ?? 'None / Passive Control'} />;
             }
         },
         {

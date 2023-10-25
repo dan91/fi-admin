@@ -1,12 +1,11 @@
-
 import {
     IResourceComponentsProps,
     HttpError,
     useUpdate,
     useGo,
 } from "@refinedev/core";
-import { TagField, EditButton, useTable, List } from "@refinedev/antd";
-import { CheckCircleOutlined, ClockCircleOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PauseCircleOutlined, PauseOutlined, PlayCircleOutlined, StopOutlined, SyncOutlined } from "@ant-design/icons";
+import { TagField, useTable, List } from "@refinedev/antd";
+import { CheckCircleOutlined, EditOutlined, PauseOutlined, PlayCircleOutlined, SyncOutlined } from "@ant-design/icons";
 import { Table, Button, Space } from "antd";
 
 
@@ -14,6 +13,7 @@ import { IExperiment } from "../../interfaces";
 import { EXPERIMENT_COLLECTION } from "../../utility";
 import React, { ReactNode } from "react";
 import { ExperimentStatus } from "./show";
+import { useGetTrialsByExperimentId } from "../../utility/api";
 
 
 export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
@@ -39,8 +39,6 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
                 return <SyncOutlined spin />
             case ExperimentStatus.draft:
                 return <EditOutlined />
-            case ExperimentStatus.ready:
-                return <ClockCircleOutlined />
             default: return <></>
         }
     }
@@ -51,8 +49,6 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
                 return 'success'
             case ExperimentStatus.published:
                 return 'processing'
-            case ExperimentStatus.ready:
-                return 'default'
             default: return 'default'
         }
     }
@@ -65,25 +61,20 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
                 return buttonListPaused(value)
             case ExperimentStatus.completed:
                 return buttonListCompleted(value)
-            case ExperimentStatus.ready:
-                return buttonListReady(value)
+
             default: return []
         }
     }
 
-    const buttonListReady = (value: string) => [<Button icon={<EyeOutlined />}
-        onClick={() => setStatus(value, ExperimentStatus.published)}>
-        Publish</Button>, <Button icon={<EditOutlined />}
-            onClick={() => { go({ to: { action: 'edit', id: value, resource: EXPERIMENT_COLLECTION } }) }}>
-        Edit</Button>]
+
 
     const buttonListCompleted = (value: string) => []
 
     const buttonListPaused = (value: string) => [<Button icon={<PlayCircleOutlined />}
         onClick={() => { setStatus(value, ExperimentStatus.published) }}>
-        Resume</Button>, <Button icon={<StopOutlined />}
-            onClick={() => { setStatus(value, ExperimentStatus.ready) }}>
-        Stop</Button>]
+        Resume</Button>, <Button icon={<CheckCircleOutlined />}
+            onClick={() => { setStatus(value, ExperimentStatus.completed) }}>
+        Set as Completed</Button>]
 
     const buttonListPublished = (value: string) => [<Button icon={<PauseOutlined />}
         onClick={() => { setStatus(value, ExperimentStatus.paused) }}>
@@ -94,7 +85,8 @@ export const ExperimentList: React.FC<IResourceComponentsProps> = () => {
             <Table {...tableProps} rowKey="id">
                 <Table.Column<IExperiment> dataIndex="name" title="Name" width="50%"
                     render={(value, record) => {
-                        return <Button type="link" onClick={() => go({ to: { action: 'show', resource: EXPERIMENT_COLLECTION, id: record.id } })}> {value}</Button>
+                        const action = record.status == ExperimentStatus.draft ? 'edit' : 'show'
+                        return <Button type="link" onClick={() => go({ to: { action: action, resource: EXPERIMENT_COLLECTION, id: record.id } })}> {value}</Button>
                     }
                     } />
                 <Table.Column width="20%"

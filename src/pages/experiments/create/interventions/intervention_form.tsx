@@ -54,7 +54,7 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ experimentId
         return (
             <>
                 <List.Item actions={[<EditButton type="link" onClick={() => { setEdit(item); }} />]}>
-                    <List.Item.Meta title={name} description={message} />
+                    <List.Item.Meta title={'Name: ' + name} description={'Message: ' + message} />
                 </List.Item>
             </>
         );
@@ -78,10 +78,14 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({ experimentId
 
         return (
             <>
-                <List.Item actions={[<SaveButton type="link" onClick={() => handleSave(item)} />, <DeleteButton type="link" recordItemId={item.id} resource={INTERVENTION_COLLECTION} icon={false} />, <Button type="link" onClick={() => { setEdit(null) }}>Cancel</Button>]}>
-                    <List.Item.Meta title={<Text editable={{
+                <List.Item>
+                    <List.Item.Meta title={<>Name:<Text style={{ margin: '0 0 0 10px' }} editable={{
                         editing: true, onChange: (newValue) => _saveName(newValue)
-                    }}>{name}</Text>} description={<Text editable={{ editing: true, onChange: (newValue) => _saveMessage(newValue) }}>{message}</Text>} />
+                    }}>{name}</Text></>}
+                        description={
+                            <>Message:<Text style={{ margin: '0 0 0 10px' }}
+                                editable={{ editing: true, onChange: (newValue) => _saveMessage(newValue) }}>{message}</Text></>} />
+                    <SaveButton type="link" onClick={() => handleSave(item)} /> <DeleteButton type="link" recordItemId={item.id} resource={INTERVENTION_COLLECTION} icon={false} /> <Button type="link" onClick={() => { setEdit(null) }}>Cancel</Button>
                 </List.Item >
             </>
         );

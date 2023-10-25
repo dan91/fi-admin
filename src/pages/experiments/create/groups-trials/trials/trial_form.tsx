@@ -20,7 +20,7 @@ export const TrialForm: React.FC<TrialFormProps> = ({ formProps, interventions, 
     const interventionOptions: InterventionOption[] = interventions.map((intervention: IIntervention) => {
         return { value: intervention.id, label: intervention.name }
     })
-    interventionOptions.unshift({ value: 'none', label: 'None' })
+    interventionOptions.unshift({ value: 'none', label: 'None / Passive Control' })
 
     if (intervention == 'none') {
         formProps.form?.setFieldValue('stimuliSetId', '');

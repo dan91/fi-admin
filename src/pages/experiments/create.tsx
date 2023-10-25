@@ -1,5 +1,6 @@
 import {
   useGetIdentity,
+  useGo,
   useNavigation,
   useUpdate,
 } from "@refinedev/core";
@@ -13,6 +14,7 @@ import {
   Button,
   Spin,
   Steps,
+  Tooltip,
 } from "antd";
 
 import { IExperiment } from "../../interfaces";
@@ -23,6 +25,9 @@ import { InterventionForm } from "./create/interventions/intervention_form";
 import { StimulusList } from "./create/stimuli/stimulus_list";
 import { GroupTrialForm } from "./create/groups-trials/group_trial_form";
 import { Permission, Role } from "@refinedev/appwrite";
+import { useGetTrialsByExperimentId } from "../../utility/api";
+import { EyeOutlined } from "@ant-design/icons";
+import { ExperimentStatus } from "./show";
 
 interface ExperimentMasterProps {
   experimentToEdit?: IExperiment | null
@@ -148,6 +153,24 @@ type CreateOrEditProps = { children: ReactNode; type: string, footerButtons: Rea
 
 
 export const CreateOrEdit: React.FC<CreateOrEditProps> = ({ children, type, footerButtons, experiment }) => {
-  return type == "edit" ? <Edit title={'Edit ' + experiment?.name ?? 'Experiment'} headerButtons={<></>} footerButtons={footerButtons} > {children}</Edit >
+  const trials = useGetTrialsByExperimentId(experiment?.id ?? '');
+  const go = useGo()
+
+  const { mutate } = useUpdate<IExperiment>()
+
+  const setStatus = (id: string, status: string) => {
+    mutate({
+      resource: EXPERIMENT_COLLECTION,
+      values: { status: status },
+      id: id,
+      successNotification: false
+    })
+  }
+
+  return type == "edit" ? <Edit title={'Edit ' + experiment?.name ?? 'Experiment'}
+    headerButtons={<Tooltip title={trials.length > 0 ? '' : 'Add trials to publish the experiment.'}><Button disabled={trials.length > 0 ? false : true} onClick={() => {
+      setStatus(experiment?.id ?? '', ExperimentStatus.published);
+      go({ to: { action: 'show', resource: EXPERIMENT_COLLECTION, id: experiment?.id ?? '' } });
+    }} icon={<EyeOutlined />}>Publish</Button></Tooltip>} footerButtons={footerButtons} > {children}</Edit >
     : <Create footerButtons={footerButtons} > {children}</Create >
 }
